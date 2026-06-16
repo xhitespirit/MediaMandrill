@@ -1,0 +1,188 @@
+
+/* boutons */
+button {
+    display: flex;
+    border: none;
+    border-radius: 5px;
+    transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s;
+    font-size: 1rem;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+button:hover:enabled:not(.no-default-hover)  {
+    color: var(--text-white);
+    background-color: var(--btn-hover-color);
+}
+
+button:active {
+    transform: scale(.95);
+    box-shadow: none;
+}
+
+button.highlight {
+    background-color: var(--btn-accent-color);
+}
+
+.button-back, .button-up, .button-close, .button-parent, .button-nav-burger, .button-nav-search {
+    align-self: flex-start;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text-white);
+    cursor: pointer;
+}
+
+.button-back, .button-up, .button-close, .button-parent {
+    background-color: var(--btn-accent-color);
+    width: 32px;
+    height: 32px;
+}
+
+.button-nav-burger, .button-nav-search {
+    background-color: var(--bg-light);
+    width: 38px;
+    height: 38px;
+}
+
+.button-nav-burger {
+    position: relative;
+}
+
+.button-close-24 {
+    width: 24px;
+    height: 24px;
+}
+
+.button-OK {
+    padding: 7px 18px;
+    font-size: 1.08rem;
+    width: 220;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-white);
+    background-color: var(--btn-accent-color);
+}
+
+.button-play-all {
+    padding: 7px 0;
+    font-size: 1.08em;
+    width: 120px;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    color: var(--text-white);
+    background-color: var(--bg-light);
+}
+@media (max-width: 960px) {
+    .button-play-all {
+        padding: 4px 0;
+        width: 64px;
+    }
+    .button-play-all:not(.nomedia) .button-svg {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    .button-play-all:not(.nomedia) .button-title {
+        display:none;
+    }
+}
+
+.button-play-song {
+    padding: 5px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-medium);
+    background-color: var(--bg-light);
+}
+
+.button-display-type {
+    align-self: flex-start;
+    align-items: center;
+    font-size: 0.9rem;
+    height: 32px;
+    min-width: 100px;
+    border-radius: 16px;
+    padding-left: 8px;
+    padding-right: 16px;
+    color: var(--text-medium);
+    background-color: var(--bg-light);
+    display: inline-flex;
+}
+.button-display-type.active {
+    color: var(--text-light);
+    background-color: var(--btn-accent-color);
+}
+
+.button-sort-type {
+    padding: 5px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-medium);
+    background-color: var(--bg-light);
+    width: 26px;
+    height: 26px;
+}
+.button-sort-type.active {
+    color: var(--text-light);
+    background-color: var(--btn-accent-color);
+}
+
+.button-svg {
+    margin-left: 0;
+    margin-right: 6px;
+}
+
+@media (max-width: 960px) {
+    .button-display-type:not(.nomedia) {
+        min-width: auto;
+        width: 32px;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    .button-display-type:not(.nomedia) .button-svg {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    .button-display-type:not(.nomedia) .button-title {
+        display:none;
+    }
+}
+
+.button-menu {
+    align-self: flex-start;
+    align-items: center;
+    font-size: 0.9rem;
+    height: 32px;
+    width: 110px;
+    border-radius: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: var(--bg-light);
+    display: inline-flex;
+    justify-content: center;
+    color: var(--text-light);
+}
+
+.button-artists {
+    align-self: flex-start;
+    align-items: center;
+    font-size: 0.9rem;
+    height: 32px;
+    width: 150px;
+    border-radius: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: var(--bg-light);
+    display: inline-flex;
+    justify-content: center;
+    color: var(--text-light);
+}
+.button-artists.active {
+    color: var(--text-light);
+    background-color: var(--btn-accent-color);
+}
+
+
+

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+	width="24" height="24"
+	viewBox="0 -960 960 960"
+	fill="#f0f0f0">
+
+	<!-- Haut-parleur -->
+	<path d="M280-360H160q-17 0-28.5-11.5T120-400v-160q0-17 11.5-28.5T160-600h120l132-132q19-19 43.5-8.5T480-703v446q0 27-24.5 37.5T412-228L280-360Z"/>
+
+	<!-- Petite onde -->
+	<path class="wave-small"
+		d="M640-480q0-42-19-79t-51-63v284q32-26 51-63t19-79Z"/>
+
+	<!-- Grande onde -->
+	<path class="wave-big"
+		d="M720-480q0-83-44-151.5T558-735q-15-7-22-21.5t-2-29.5q6-16 21.5-23t31.5 0q97 43 155 131.5T800-480q0 108-58 196.5T587-153q-16 7-31.5 0T534-176q-5-15 2-29.5t22-21.5q74-34 118-102.5T720-480Z"/>
+
+	<style>
+		.wave-small,
+		.wave-big {
+		  opacity: 0;
+		}
+
+		.wave-small {
+			animation: smallWave 1.5s ease-in-out infinite;
+		}
+
+		.wave-big {
+			animation: bigWave 1.5s ease-in-out infinite;
+		}
+
+		@keyframes smallWave {
+			0%   { opacity: 0; }
+			25%  { opacity: 1; }
+			40%  { opacity: 1; }
+			75%  { opacity: 0; }
+			100% { opacity: 0; }
+		}
+
+		@keyframes bigWave {
+			0%   { opacity: 0; }
+			10%  { opacity: 0; }
+			40%  { opacity: 1; }
+			50%  { opacity: 1; }
+			80% { opacity: 0; }
+			100% { opacity: 0; }
+		}
+	</style>
+</svg>

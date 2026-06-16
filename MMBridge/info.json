@@ -1,0 +1,9 @@
+{
+    "title": "MMBridge",
+    "version": "1.0.0",
+    "id": "MMBridge",
+    "type": "general",
+    "description": "Bridge WebSocket for MediaMonkey 2024",
+    "author": "Me",
+    "onUnload": "cleanup"
+}

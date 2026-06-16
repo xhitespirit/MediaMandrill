@@ -1,0 +1,193 @@
+
+/* Styles pour la barre de lecture générale */
+.player-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--player-bar-height);
+    background-color: var(--bg-medium-transparent);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 -4px 15px var(--shadow-medium);
+    z-index: 10; /* S'assurer qu'elle est au-dessus des autres contenus et dessous nav-bar*/
+    color: var(--text-light);
+    box-sizing: border-box; /* Inclure le padding */
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 25%;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.player-controls {
+    display: flex;
+    gap: 15px;
+    flex-shrink: 0; /* Ne pas réduire les contrôles */
+}
+
+.player-volume {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 15%;
+    gap: 10px;
+}
+
+.player-progress {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 25%;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.player-album-art {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px var(--shadow-medium);
+}
+
+.player-text-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.player-song-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-artist-album {
+    font-size: 0.9rem;
+    color: var(--text-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-control-button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.player-volicon {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.player-control-button.active {
+    color: var(--text-white);
+    background-color: var(--btn-accent-color);
+}
+
+.player-control-button:hover {
+    background-color: var(--btn-hover-color);
+    color: var(--text-white);
+    transform: scale(1.1);
+}
+
+.player-time {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    flex-shrink: 0;
+}
+
+.player-progress-bar {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: var(--bar-bg-color);
+    border-radius: 3px;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s ease;
+}
+
+.player-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--btn-hover-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px var(--shadow-medium);
+    transition: background 0.2s ease;
+}
+
+.player-progress-bar::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--btn-hover-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px var(--shadow-medium);
+    transition: background 0.2s ease;
+}
+
+.player-progress-bar:hover {
+    background: var(--bar-hover-color);
+}
+
+.player-progress-bar::-webkit-slider-thumb:hover {
+    background: var(--btn-accent-color);
+}
+
+.player-progress-bar::-moz-range-thumb:hover {
+    background: var(--btn-accent-color);
+}
+
+/* Responsive pour la barre de lecture */
+@media (max-width: 960px) {
+    .player-bar {
+        flex-direction: column;
+        height: var(--player-bar-height480);
+        padding: 5px 0 10px 0;
+        justify-content: center;
+    }
+
+    .player-info {
+        display: none;
+    }
+
+    .player-volume, .player-progress {
+        width: 90%;
+        max-width: 100%;
+    }
+}

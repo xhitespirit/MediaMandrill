@@ -1,0 +1,6 @@
+https://github.com/FiloSottile/mkcert/releases/latest
+renommer en mkcert.exe
+installation: mkcert -install
+générer les certificats, depuis le dossier MMBridgeServer: mkcert x1tablet.local 192.168.1.200
+récupérer le certificat CA rootCA.pem (pour devices distants): mkcert -CAROOT
+
