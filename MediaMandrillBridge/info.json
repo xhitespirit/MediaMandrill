@@ -1,0 +1,9 @@
+{
+    "title": "MediaManrill Bridge",
+    "version": "1.0.0",
+    "id": "MediaManrillBridge",
+    "type": "general",
+    "description": "WebSocket Bridge for MediaMonkey 2024",
+    "author": "xhitespirit",
+    "onUnload": "cleanup"
+}
