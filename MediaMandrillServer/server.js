@@ -8,18 +8,19 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import WebSocket, { WebSocketServer } from 'ws';
+import { mandrillPath, sslKey, sslCert } from './config.js';
 
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const mandrillPath = 'MediaMandrill/';
+console.log('[Server] Starting MediaMandrill Server...');
+
 
 let httpsOptions = null;
 let sslEnabled = false;
-const sslKeyPath = path.join(__dirname, 'x1tablet.local-key.pem');
-const sslCertPath = path.join(__dirname, 'x1tablet.local.pem');
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sslKeyPath = path.join(__dirname, sslKey);
+const sslCertPath = path.join(__dirname, sslCert);
 
-console.log('[Server] Starting MediaMandrill bridge server...');
 
 if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
 	try {
