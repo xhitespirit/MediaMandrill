@@ -28,7 +28,6 @@ let castFirstRun = true;
 export async function initMainMenu() {
 	
 	await menuSectionCast(); // await -> pour éviter que le menu s'ouvre suite au .click sur getDom('burgerMenuPlayersItemlocalplayer').click(); (fonction menuSectionCast)
-	// menuSectionStats();
 	menuSectionMM();
 
 	// création menu hamburger
@@ -95,16 +94,16 @@ async function menuSectionMM() {
 		initViews();	
 	});
 
-	// certificate
-	dom.burgerMenuCertificate.addEventListener('click', () => {
-		const a = document.createElement('a');
-		a.href = '/rootCA.pem';
-		a.download = 'rootCA.pem';
-		a.click();
-	});
+	// // certificate
+	// dom.burgerMenuCertificate.addEventListener('click', () => {
+		// const a = document.createElement('a');
+		// a.href = '/rootCA.pem';
+		// a.download = 'rootCA.pem';
+		// a.click();
+	// });
 
-	// testfunction
-	dom.burgerMenuTestFunction.addEventListener('click', () => { testFunction(); });
+	// // testfunction
+	// dom.burgerMenuTestFunction.addEventListener('click', () => { testFunction(); });
 }
 
 
