@@ -10,16 +10,16 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 - Install the MediaMandrill for MediaMonkey 2024 add-on as usual from the installer package MediaMandrill.mmip
 
 
-## A To use MediaMandrill :
+## To use MediaMandrill :
 - Start MediaMonkey (obviously !)
 - The MediaMandrill server will start automatically in a separate node.js window
 - Open your browser and navigate to: http://YourComputerNameOrIP:4080/
 
 
 
-## A Optional: setup SSL to access MediaMandrill through http://YourComputerNameOrIP:4443/
+## Optional: setup SSL to access MediaMandrill through https://YourComputerNameOrIP:4443/
 
-### A Generating certificates with mkcert (under Windows) if you don't already have some:
+### Generating certificates with mkcert (under Windows) if you don't already have some:
 
 - Download mkcert from https://github.com/FiloSottile/mkcert/releases/latest
 - Rename to mkcert.exe
@@ -29,7 +29,7 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 
 
-### A Configure the server to use your certificates:
+### Configure the server to use your certificates:
 
 - copy your certificate and key files to the 'Server' folder: .\Server\youcert.pem \Server\youcert-key.pem
 - edit the server config file .\Server\config.js, and update lines with your certificate and key files name:
@@ -38,7 +38,7 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 
 
-### A Configure the web app to make the root CA certificate available from the menu:
+### Configure the web app to make the root CA certificate available from the menu:
 
 - copy the root CA certificate file to the 'app' folder .\Server\app\rootCA.pem
 - edit the app config file .\Server\app\js\config.js, and update line with the root CA certificate file name:
@@ -46,7 +46,7 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 
 
-## A Optional: change the server listening ports
+## Optional: change the server listening ports
 - edit the server config file .\Server\config.js, and update lines with your certificate and key files name:
 	export const portHttp = '4080';
 	export const portHttps = '4443';
