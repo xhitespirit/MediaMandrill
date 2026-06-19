@@ -19,7 +19,7 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 ## Optional: setup SSL to access MediaMandrill through https://YourComputerNameOrIP:4443/
 
-### Generating certificates with mkcert (under Windows) if you don't already have some:
+### Generating certificate and key with mkcert (under Windows) if you don't already have one:
 
 - Download mkcert from https://github.com/FiloSottile/mkcert/releases/latest
 - Rename to mkcert.exe
