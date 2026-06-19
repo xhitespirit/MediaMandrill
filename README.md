@@ -33,8 +33,8 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 - copy your certificate and key files to the 'Server' folder: .\Server\youcert.pem \Server\youcert-key.pem
 - edit the server config file .\Server\config.js, and update lines with your certificate and key files name:
-	export const sslCert = 'youcert.pem';
-	export const sslKey = 'youcert-key.pem';
+	- export const sslCert = 'youcert.pem';
+	- export const sslKey = 'youcert-key.pem';
 
 
 
@@ -42,14 +42,14 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 - copy the root CA certificate file to the 'app' folder .\Server\app\rootCA.pem
 - edit the app config file .\Server\app\js\config.js, and update line with the root CA certificate file name:
-	export const certCA = 'rootCA.pem';
+	- export const certCA = 'rootCA.pem';
 
 
 
 ## Optional: change the server listening ports
 - edit the server config file .\Server\config.js, and update lines with your certificate and key files name:
-	export const portHttp = '4080';
-	export const portHttps = '4443';
-	export const portWs = '4081';
-	export const portWss = '4444';	
+	- export const portHttp = '4080';
+	- export const portHttps = '4443';
+	- export const portWs = '4081';
+	- export const portWss = '4444';	
 	
