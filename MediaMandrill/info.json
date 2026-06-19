@@ -1,10 +1,9 @@
 {
-    "title": "MediaMandrill",
-    "version": "1.1.0",
-    "id": "MediaMandrill",
-    "type": "general",
-    "description": "Web interface for MediaMonkey 2024",
-    "author": "xhitespirit",
-    "onUnload": "cleanup"
+	"title": "MediaMandrill",
+	"version": "1.1.1",
+	"id": "MediaMandrill",
+	"description": "Web interface for MediaMonkey 2024",
+	"type": "Remote Access",
+	"author": "xhitespirit",
 	"icon": "MediaMandrill192x192.png"
 }
