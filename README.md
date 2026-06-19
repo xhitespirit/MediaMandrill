@@ -1,12 +1,12 @@
-# A MediaMandrill offers a web interface that allows remote control of a MediaMonkey 2024 instance.
+# MediaMandrill offers a web interface that allows remote control of a MediaMonkey 2024 instance.
 
-### A It is built around two components:
+### It is built around two components:
 - The Bridge: essentially a MediaMonkey script that uses the MediaMonkey APIs and exposes WebSocket
 - The Server: a lightweight Node.js web server that acts as a gateway between the MediaMandrill Bridge’s WebSocket and standard HTTP(S) browsing. It exposes REST APIs and hosts the web interface.
 Both bridge and server components are embedded in the MediaMandrill add-on package
 
 
-## A Installation:
+## Installation:
 - Install the MediaMandrill for MediaMonkey 2024 add-on as usual from the installer package MediaMandrill.mmip
 
 
