@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MediaMandrill</title>
+	<link rel="stylesheet" href="/styles/main.css">
+	<link rel="stylesheet" href="/styles/navmenu.css">
+	<link rel="stylesheet" href="/styles/view-main.css">
+	<link rel="stylesheet" href="/styles/view-details.css">
+	<link rel="stylesheet" href="/styles/view-specific.css">
+	<link rel="stylesheet" href="/styles/view-nowplaying.css">
+	<link rel="stylesheet" href="/styles/player.css">
+	<link rel="stylesheet" href="/styles/buttons.css">
+	<link rel="stylesheet" href="/styles/menus.css">
+	<link rel="stylesheet" href="/styles/misc.css">
+	<link rel="icon" href="/favicon.png?v=2" type="image/png">
+	<link rel="manifest" href="/manifest.json?v=2">
+</head>
+<body>
+
+    <nav id="navBar" class="nav-bar">
+		<div class="nav-menu nav-menu-trigger" id="burgerMenuTrigger">
+			<button type="button" id="navButtonBurger" class="button-nav-burger" data-i18n="btn.burger" data-i18n-attr="title"></button>
+			<div class="menu-dropdown row wauto" id="burgerMenuDropdown">
+				
+				<div class="menu-section borderright">				
+					<!-- menu choix lecteurs -->
+					<div class="menu-title">
+						<div class="menu-icon nohover"><img class="menu-icon" src="resources/icons/cast.svg"></div>
+						<div class="menu-label nohover" data-i18n="burger.cast"></div>
+					</div>
+					<div class="menu-section-list" id="burgerMenuPlayers">
+					</div>
+				</div>
+				
+				<!-- menu action MM -->
+				<div class="menu-section borderright">
+					<div class="menu-title">
+						<div class="menu-icon nohover"><img class="menu-icon" src="resources/icons/settings.svg"></div>
+						<div class="menu-label nohover" data-i18n="burger.mm"></div>
+					</div>
+					<div class="menu-section-list">
+						<!-- refresh cache -->
+						<div class="menu-item nav-menu-item" id="burgerMenuRefreshCache">
+							<div class="menu-icon"><img class="menu-icon" src="resources/icons/refresh.svg"></div>
+							<div class="menu-label" data-i18n="burger.mm.refreshcache"></div>
+						</div>
+						<!-- refresh views -->
+						<div class="menu-item nav-menu-item" id="burgerMenuRefreshViews">
+							<div class="menu-icon"><img class="menu-icon" src="resources/icons/refresh.svg"></div>
+							<div class="menu-label" data-i18n="burger.mm.refreshviews"></div>
+						</div>
+						<!-- langue -->
+						<div class="menu-item nav-menu-item" id="burgerMenuLangFr">
+							<div class="menu-icon"><img class="menu-icon" src="resources/icons/language.svg"></div>
+							<div class="menu-label">Français</div>
+						</div>
+						<div class="menu-item nav-menu-item" id="burgerMenuLangEn">
+							<div class="menu-icon"><img class="menu-icon" src="resources/icons/language.svg"></div>
+							<div class="menu-label">English</div>
+						</div>
+						<!-- certificat -->
+						<div class="menu-item nav-menu-item" id="burgerMenuCertificate">
+							<div class="menu-icon">
+								<img class="menu-icon" src="resources/icons/certificate.svg">
+							</div>
+							<div class="menu-label" data-i18n="burger.mm.certificate"></div>
+						</div>
+						<!-- fonction de test -->
+						<!-- <div class="menu-item nav-menu-item" id="burgerMenuTestFunction"> -->
+							<!-- <div class="menu-icon"><img class="menu-icon" src="resources/icons/bug.svg"></div> -->
+							<!-- <div class="menu-label" data-i18n="burger.mm.testfn"></div> -->
+						<!-- </div> -->
+					</div>
+				</div>
+				
+				<div class="menu-section borderright">				
+					<!-- menu stats -->
+					<div class="menu-title">
+						<div class="menu-icon nohover"><img class="menu-icon" src="resources/icons/stats.svg"></div>
+						<div class="menu-label nohover" data-i18n="burger.stats"></div>
+					</div>
+					<div class="menu-section-list" id="burgerMenuStats">
+					</div>
+				</div>
+				
+			</div>
+		</div>
+		
+		<nav class="nav-tab-menu">
+			<ul>
+				<li><a href="#" id="navNowPlaying" 	class="nav-link" data-i18n="nav.nowplaying"></a></li>
+				<li><a href="#" id="navWelcome" 	class="nav-link" data-i18n="nav.welcome"></a></li>
+				<li><a href="#" id="navArtists" 	class="nav-link" data-i18n="nav.artists"></a></li>
+				<li><a href="#" id="navAlbums" 		class="nav-link" data-i18n="nav.albums"></a></li>
+				<li><a href="#" id="navGenres" 		class="nav-link" data-i18n="nav.genres"></a></li>
+				<li><a href="#" id="navDynList" 	class="nav-link" data-i18n="nav.dynlists"></a></li>
+				<li><a href="#" id="navPlaylists" 	class="nav-link" data-i18n="nav.playlists"></a></li>
+			</ul>
+		</nav>
+		
+		<div class="nav-search" id="navSearch">            
+			<button type="button" id="navButtonSearch" class="button-nav-search" data-i18n="btn.search" data-i18n-attr="title"></button>
+		</div>
+    </nav>
+
+    <div id="mainContainer" class="container">
+	
+        <!-- Vue Lecture en cours -->
+        <div id="npContainer" class="container-view np-container fanart hidden">
+            <div class="np-left">
+				
+				<div class="np-rating" id="npRating"></div>
+				<img id="npAlbumArt" class="np-album-art" src="resources/images/fallback_album.png" data-i18n="player.cover" data-i18n-attr="alt">
+				<div class="np-song-title" id="npSongTitle"></div>
+				<div id="npArtist" class="np-artist"><a href="#" id="npArtistLink"></a></div>
+				
+                <div class="np-combine">
+					<div id="npAlbum" class="np-album"><a href="#" id="npAlbumLink"></a></div>
+					<div class="np-year" id="npYear"></div>
+                </div>
+                
+                <div class="np-combine">
+                    <div class="np-genres" id="npGenres"><a href="#" id="npGenreLink"></a></div>
+                    <div class="np-moods" id="npMoods"></div>
+                </div>
+				
+                <div class="np-combine">
+                    <div class="np-audiocodec" id="npCodecIcon"></div>
+					<div class="np-audiocodec" id="npCodecKHz"></div>
+					<div class="np-audiocodec" id="npCodecBps"></div>
+                </div>
+                
+            </div>
+            <div class="np-right">
+				<div id="npPlaylistList" class="np-playlist-list"></div>
+			</div>
+			<div id="npRightBar" class="bar-vertical right aligntop">
+				<button type="button" id="npBtnClose" class="button-back" data-i18n="btn.close" data-i18n-attr="title"></button>
+			</div>
+        </div>
+
+        <!-- Vue de recherche -->
+        <div id="searchContainer" class="container-view hidden">
+			<div id="searchResultsRightBar" class="bar-vertical right alignends">
+				<button type="button" id="searchViewBtnClose" class="button-back" data-i18n="btn.close" data-i18n-attr="title"></button>
+				<button type="button" id="searchViewBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+			<div class="section-block">
+				<div class="section-header">
+					<div id="searchHeader" class="search-header" ></div>
+				</div>
+			</div>
+            <div id="searchResultsContent">
+				<div id="searchResultsArtists" class="section-block"></div>
+				<div id="searchResultsAlbums" class="section-block"></div>
+				<div id="searchResultsSongs" class="section-block"></div>
+			</div>
+        </div>
+
+        <!-- Vue welcome -->
+        <div id="welcomeContainer" class="container-view hidden">
+            <div id="welcomeAlbumsLatestView" class="section-block"></div>
+			<div id="welcomeAlbumsRandomView" class="section-block"></div>
+			<div id="welcomeArtistsRandomView" class="section-block"></div>
+		</div>
+
+        <!-- Vue artistes -->
+        <div id="artistsContainer" class="container-view hidden">
+            <div id="artistsViewContentAlphaBar" class="bar-vertical left aligncenter alpha-bar">
+                <ul>
+                    <li>#</li><li>A</li><li>B</li><li>C</li><li>D</li><li>E</li><li>F</li><li>G</li><li>H</li><li>I</li><li>J</li><li>K</li><li>L</li><li>M</li><li>N</li><li>O</li><li>P</li><li>Q</li><li>R</li><li>S</li><li>T</li><li>U</li><li>V</li><li>W</li><li>X</li><li>Y</li><li>Z</li>
+                </ul>
+            </div>
+            <div id="authorsViewContentAlphaBar" class="bar-vertical left aligncenter alpha-bar hidden">
+                <ul>
+                    <li>#</li><li>A</li><li>B</li><li>C</li><li>D</li><li>E</li><li>F</li><li>G</li><li>H</li><li>I</li><li>J</li><li>K</li><li>L</li><li>M</li><li>N</li><li>O</li><li>P</li><li>Q</li><li>R</li><li>S</li><li>T</li><li>U</li><li>V</li><li>W</li><li>X</li><li>Y</li><li>Z</li>
+                </ul>
+            </div>
+			<div id="artistsType" class="section-header center"></div>
+			<div id="artistsView" class="section-block"></div>
+			<div id="authorsView" class="section-block hidden"></div>
+			<div id="artistsViewRightBar" class="bar-vertical right alignbottom">
+				<button type="button" id="artistsViewBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+        </div>
+		
+        <!-- Vue albums -->
+        <div id="albumsContainer" class="container-view hidden">
+            <div id="albumsViewContentAlphaBar" class="bar-vertical left aligncenter alpha-bar">
+                <ul>
+                    <li>#</li><li>A</li><li>B</li><li>C</li><li>D</li><li>E</li><li>F</li><li>G</li><li>H</li><li>I</li><li>J</li><li>K</li><li>L</li><li>M</li><li>N</li><li>O</li><li>P</li><li>Q</li><li>R</li><li>S</li><li>T</li><li>U</li><li>V</li><li>W</li><li>X</li><li>Y</li><li>Z</li>
+                </ul>
+            </div>
+            <div id="albumsView"  class="section-block"></div>
+			<div id="albumsContainerRightBar" class="bar-vertical right alignbottom">
+				<button type="button" id="albumsViewBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+        </div>
+
+        <!-- Vue genres -->
+        <div id="genresContainer" class="container-view hidden">
+            <div id="genresViewContentAlphaBar" class="bar-vertical left aligncenter alpha-bar">
+                <ul>
+                    <li>#</li><li>A</li><li>B</li><li>C</li><li>D</li><li>E</li><li>F</li><li>G</li><li>H</li><li>I</li><li>J</li><li>K</li><li>L</li><li>M</li><li>N</li><li>O</li><li>P</li><li>Q</li><li>R</li><li>S</li><li>T</li><li>U</li><li>V</li><li>W</li><li>X</li><li>Y</li><li>Z</li>
+                </ul>
+            </div>
+            <div id="genresView" class="section-block"></div>
+			<div id="genresContainerRightBar" class="bar-vertical right alignbottom">
+				<button type="button" id="genresViewBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+        </div>
+
+        <!-- Vue playlists -->
+        <div id="playlistsContainer" class="container-view hidden">
+			<div id="playlistsView" class="section-block"></div>
+			<div id="playlistsContainerRightBar" class="bar-vertical right alignbottom">
+				<button type="button" id="playlistsViewBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+        </div>
+		
+        <!-- Vue liste dynamique -->
+        <div id="dynListContainer" class="container-view hidden">
+			<div class="section-block">
+				<div class="section-header">
+					<div class="left-column"><span class="section-title" data-i18n="dynlist.crit"></span></div>
+					<div class="right-column"></div>
+				</div>
+				
+				<div class="dynlist-section-content">
+					<div id="dynListBuild" class="dynlist-build">
+						<div class="dynlist-row center adaptmedia">
+							<div id="dynListLimit" class="dynlist-menu"></div>
+							<div id="dynListArtist" class="dynlist-menu"></div>
+							<div id="dynListAuthors" class="dynlist-menu"></div>
+							<div id="dynListAlbum" class="dynlist-menu"></div>
+							<div id="dynListGenre" class="dynlist-menu"></div>
+							<div id="dynListMood" class="dynlist-menu"></div>
+							<div id="dynListRating" class="dynlist-menu"></div>
+						</div>
+						<div class="dynlist-row">
+							<div class="dynlist-column">
+								<div id="dynListRuleLimit" class="dynlist-rule hidden"></div>
+								<div id="dynListRuleArtist" class="dynlist-rule hidden"></div>
+								<div id="dynListRuleAuthors" class="dynlist-rule hidden"></div>
+								<div id="dynListRuleAlbum" class="dynlist-rule hidden"></div>
+								<div id="dynListRuleGenre" class="dynlist-rule hidden"></div>
+								<div id="dynListRuleMood" class="dynlist-rule hidden"></div>
+								<div id="dynListRuleRating" class="dynlist-rule hidden"></div>
+							</div>
+						</div>
+						<div class="dynlist-row">
+							<button type="button" class="button-display-type nomedia hidden" id="dynListResetBtn">
+								<img class="button-svg" src="resources/icons/reset.svg">
+								<span class="button-title" data-i18n="dynlist.btn.reset"></span>									
+							</button>
+							<button type="button" class="button-display-type nomedia hidden active" id="dynListRefreshBtn">
+								<img class="button-svg" src="resources/icons/generate.svg">
+								<span class="button-title" data-i18n="dynlist.btn.refresh"></span>
+							</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div id="dynListResult" class="section-block"></div>
+		</div>
+		
+		<!-- Vue détail artiste -->
+        <div id="artistDetailsContainer" class="container-details fanart hidden">
+			<div id="artistDetailLeftBar" class="bar-vertical left aligntop">
+				<button type="button" id="artistDetailsBtnBack" class="button-back" data-i18n="btn.back" data-i18n-attr="title"></button>
+			</div>
+            <div id="artistDetailsContent"></div>
+			<div id="artistDetailRightBar" class="bar-vertical right alignends">
+				<button type="button" id="artistDetailsBtnParent" class="button-parent" data-i18n="btn.parent" data-i18n-attr="title"></button>
+				<button type="button" id="artistDetailsBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+			
+        </div>
+		
+        <!-- Vue détail album -->
+        <div id="albumDetailsContainer" class="container-details fanart hidden">
+			<div id="albumDetailLeftBar" class="bar-vertical left aligntop">
+				<button type="button" id="albumDetailsBtnBack" class="button-back" data-i18n="btn.back" data-i18n-attr="title"></button>
+			</div>
+            <div id="albumDetailsContent"></div>
+			<div id="albumDetailRightBar" class="bar-vertical right aligntop">
+				<button type="button" id="albumDetailsBtnParent" class="button-parent" data-i18n="btn.parent" data-i18n-attr="title"></button>
+			</div>
+        </div>
+		
+        <!-- Vue détail genre -->
+        <div id="genreDetailsContainer" class="container-details hidden">
+			<div id="genreDetailLeftBar" class="bar-vertical left aligntop">
+				<button type="button" id="genreDetailsBtnBack" class="button-back" data-i18n="btn.back" data-i18n-attr="title"></button>
+			</div>
+            <div id="genreDetailsContent"></div>
+			<div id="genreDetailRightBar" class="bar-vertical right alignends">
+				<button type="button" id="genreDetailsBtnParent" class="button-parent" data-i18n="btn.parent" data-i18n-attr="title"></button>
+				<button type="button" id="genreDetailsBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+        </div>
+
+        <!-- Vue détail playlist -->
+        <div id="playlistDetailsContainer" class="container-details hidden">
+			<div id="playlistDetailLeftBar" class="bar-vertical left aligntop">
+				<button type="button" id="playlistDetailsBtnBack" class="button-back" data-i18n="btn.back" data-i18n-attr="title"></button>
+			</div>			
+            <div id="playlistDetailsContent"></div>
+			<div id="playlistDetailRightBar" class="bar-vertical right alignends">
+				<button type="button" id="playlistDetailsBtnParent" class="button-parent" data-i18n="btn.parent" data-i18n-attr="title"></button>
+				<button type="button" id="playlistDetailsBtnUp" class="button-up" data-i18n="btn.up" data-i18n-attr="title"></button>
+			</div>
+        </div>
+		
+    </div>
+
+    <div id="playerBar" class="player-bar hidden">
+	
+        <div class="player-info">
+            <a href="#">
+                <img id="playerAlbumArt" class="player-album-art" src="resources/images/fallback_album.png" data-i18n="player.cover" data-i18n-attr="alt">
+            </a>
+			<div class="player-text-info">
+				<div id="playerSongTitle" class="player-song-title"></div>
+				<div id="playerArtistAlbum" class="player-artist-album"></div>
+			</div>
+        </div>
+		
+        <div class="player-controls">
+            <button type="button" id="playerPrevButton" class="player-control-button" data-i18n="player.btn.prev" data-i18n-attr="title"><!-- Bouton previous --></button>
+            <button type="button" id="playerPlayPauseButton" class="player-control-button play-pause-button" data-i18n="player.btn.playpause" data-i18n-attr="title"><!-- Bouton play/pause --></button>
+			<button type="button" id="playerStopButton" class="player-control-button stop-button" data-i18n="player.btn.stop" data-i18n-attr="title"><!-- Bouton stop --></button>
+            <button type="button" id="playerNextButton" class="player-control-button" data-i18n="player.btn.next" data-i18n-attr="title"><!-- Bouton next --></button>
+			<button type="button" id="playerShuffleButton" class="player-control-button" data-i18n="player.btn.shuffle" data-i18n-attr="title"><!-- Bouton shuffle --></button>			
+        </div>
+
+		<div class="player-volume">
+			<button type="button" id="playerVolDown" class="player-volicon"></button>
+			<input type="range" min="0" max="1" step="0.01" id="playerVolumeBar" class="player-progress-bar" value="0" data-i18n="player.volume" data-i18n-attr="title">			
+			<button type="button" id="playerVolUp" class="player-volicon"></button>
+		</div>
+		
+		<div class="player-progress">
+			<span id="playerCurrentTime" class="player-time">0:00</span>
+			<input type="range" id="playerProgressBar" class="player-progress-bar" value="0" min="0" max="100" step="0.1" data-i18n="player.progressbar" data-i18n-attr="title">
+			<span id="playerTotalTime" class="player-time">0:00</span>
+		</div>
+			
+    </div>
+
+    <script src="/resources/libs/lz-string.min.js"></script>
+	<script type="module" src="/js/app.js"></script>
+	<script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/js/service-worker.js"); }</script>
+
+</body>
+</html>

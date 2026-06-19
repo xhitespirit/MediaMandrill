@@ -1,0 +1,10 @@
+{
+    "title": "MediaMandrill",
+    "version": "1.1.0",
+    "id": "MediaMandrill",
+    "type": "general",
+    "description": "WebSocket for MediaMonkey 2024",
+    "author": "xhitespirit",
+    "onUnload": "cleanup"
+	"icon": "MediaMandrill192x192.png"
+}
