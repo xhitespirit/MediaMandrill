@@ -9,7 +9,7 @@ import { domElements, getDom } from './domElements.js';
 const dom = new Proxy(domElements, { get(target, prop) {return target[prop]?.();} });
 import { tLng } from './i18n.js';
 
-import { formatDuration, renderStars, updateFanart, setTrackTag, getDisplaySize, log } from './utils.js';
+import { formatDuration, renderStars, updateFanart, setTrackTag, getDisplaySize, log, setMarquee } from './utils.js';
 import { icon } from './graphics.js';
 import { renderArtistLinks, renderAlbumLink, renderGenreLinks } from './views.js';
 import { fetchArtistIds, fetchGenreIds } from './dataFetching.js';
@@ -274,9 +274,13 @@ async function updatePlayerBar() {
 		dom.playerAlbumArt.src = albumArt;
 		dom.playerAlbumArt.alt = currentSong.title || tLng('player.title.unknown');
 		dom.playerSongTitle.textContent = currentSong.title || tLng('player.title.unknown');
+		
+		setMarquee(dom.playerSongTitle);
 		dom.playerSongTitle.dataset.songid = currentSong.id || '';
 		
 		dom.playerArtistAlbum.textContent = `${artistText} - ${albumText}`;
+		setMarquee(dom.playerArtistAlbum);
+		
 		dom.playerPlayPauseButton.innerHTML = '';
 		playerState.isPaused ? dom.playerPlayPauseButton.appendChild(icon('play', 32, 32, [])) : dom.playerPlayPauseButton.appendChild(icon('pause', 32, 32, []));
 		dom.playerTotalTime.textContent = formatDuration(Math.round(playerState.songDuration));
@@ -368,7 +372,7 @@ async function updateNowPlayingView() {
 			// titre
 			dom.npSongTitle.innerHTML = currentSong.title || '';
 			dom.npSongTitle.dataset.songid = currentSong.songId || '';
-
+			
 			// artistes
 			dom.npArtist.innerHTML = currentSong?.artist?.length > 0
 				? renderArtistLinks?.(currentSong.artist, artistIds) || currentSong.artist.join(', ')
@@ -540,8 +544,8 @@ export function updateNowPlayingList() {
 				</button>
 			</div>
 			<div class="info" data-songid=${item.songId}>
-				<div class="title click-song-title">${item.title}</div>
-				<div class="meta">${item.artist?.join(', ') || tLng('player.artist.unknown')} &bull; ${item.album || tLng('player.album.unknown')}</div>
+				<div id="np-playlist-item-${item.songId}" class="title click-song-title marquee">${item.title}</div>
+				<div class="meta marquee">${item.artist?.join(', ') || tLng('player.artist.unknown')} &bull; ${item.album || tLng('player.album.unknown')}</div>
 			</div>
 		`;
 		playlistContainer.appendChild(entry);

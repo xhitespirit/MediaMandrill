@@ -1,0 +1,47 @@
+
+.flatpickr-calendar.custom {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.flatpickr-calendar.custom .flatpickr-current-month {
+    color: var(--text-light);
+}
+
+.flatpickr-calendar.custom .flatpickr-prev-month svg,
+.flatpickr-calendar.custom .flatpickr-next-month svg
+{
+    fill: var(--text-light);
+}
+
+
+.flatpickr-calendar.custom .flatpickr-current-month .numInputWrapper span.arrowDown:after,
+.flatpickr-calendar.custom .flatpickr-current-month .numInputWrapper span.arrowUp:after
+{
+    border-top-color: var(--text-light);
+    border-bottom-color: var(--text-light);
+}
+
+.flatpickr-calendar.custom span.flatpickr-weekday {
+    color: var(--text-light);
+}
+
+.flatpickr-calendar.custom .flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-calendar.custom .flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--accent-color);
+}
+
+.flatpickr-calendar.custom .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+    background-color: var(--bg-darker);
+}
+
+.flatpickr-calendar.custom .flatpickr-day {
+    color: var(--text-light);
+}
+.flatpickr-calendar.custom .flatpickr-day:hover {
+    cursor: pointer;
+    outline: 0;
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}

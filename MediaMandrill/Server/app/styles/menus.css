@@ -72,29 +72,6 @@
     }
 }
 
-.menu-section-input {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    padding: 6px 12px;
-}
-
-.menu-section-input form {
-    flex:1;
-}
-
-.menu-section-toggle {
-    flex: 1;
-    padding: 6px 12px;
-    border-bottom: 1px solid var(--border-color-menu);
-}
-
-.menu-section-toggle div:hover {
-    background-color: var(--bg-light);
-    border-radius: 6px;
-}
-
-
 .menu-section {
     display: flex;
     flex-direction: column;
@@ -120,6 +97,34 @@
 .menu-section-list div:not(.nohover):hover {
     background-color: var(--bg-light);
     border-radius: 6px;
+}
+
+.menu-section-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 6px 12px;
+}
+.menu-section-input form {
+    flex:1;
+}
+
+.menu-section-toggle {
+    flex: 1;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border-color-menu);
+}
+.menu-section-toggle div:hover {
+    background-color: var(--bg-light);
+    border-radius: 6px;
+}
+
+.menu-section-calendar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 330px;
+    width: 330px;
 }
 
 .menu-title {

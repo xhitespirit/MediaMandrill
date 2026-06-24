@@ -98,7 +98,6 @@ button.highlight {
 }
 
 .button-display-type {
-    align-self: flex-start;
     align-items: center;
     font-size: 0.9rem;
     height: 32px;
@@ -151,11 +150,10 @@ button.highlight {
 }
 
 .button-menu {
-    align-self: flex-start;
     align-items: center;
     font-size: 0.9rem;
     height: 32px;
-    width: 110px;
+    width: 120px;
     border-radius: 16px;
     padding-left: 16px;
     padding-right: 16px;
@@ -163,6 +161,14 @@ button.highlight {
     display: inline-flex;
     justify-content: center;
     color: var(--text-light);
+}
+.button-menu.icon {
+    color: var(--text-medium);
+    padding-left: 8px;
+}
+.button-menu.active {
+    color: var(--text-light);
+    background-color: var(--btn-accent-color);
 }
 
 .button-artists {

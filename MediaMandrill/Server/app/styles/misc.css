@@ -135,7 +135,6 @@
 }
 
 
-
 /* animation de démarrage */
 .loader {
     width: 30px;
@@ -162,4 +161,25 @@
 }
 .cell.right {
     text-align: right;
+}
+
+.marquee .marquee-inner {
+	display: inline-block;
+	white-space: nowrap;
+	min-width: max-content;
+	will-change: transform;
+}
+
+
+/* animation de texte marquee */
+.marquee .marquee-item,
+.marquee .marquee-spacer,
+.marquee .marquee-clone
+{
+	display: inline-block;
+}
+
+@keyframes marquee-dup {
+	0% { transform: translateX(0); }
+	100% { transform: translateX(var(--marquee-distance)); }
 }

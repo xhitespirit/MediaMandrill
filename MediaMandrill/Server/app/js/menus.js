@@ -8,7 +8,7 @@
 import { domElements, getDom } from './domElements.js';
 const dom = new Proxy(domElements, { get(target, prop) {return target[prop]?.();} });
 
-import { createForm, log	} from './utils.js';
+import { createForm, log } from './utils.js';
 import { icon } from './graphics.js';
 
 
@@ -23,7 +23,7 @@ export function menuAddSectionForm(menuContainer, sectionId, formTitle) {
 	sectionFormInput.classList.add('menu-section-input');
 	sectionFormInput.id = sectionId;
 	sectionFormInput.innerHTML = '';
-		
+	
 	// assemblage dans le contenant
 	menuContainer.appendChild(sectionFormInput);
 	
@@ -35,6 +35,56 @@ export function menuAddSectionForm(menuContainer, sectionId, formTitle) {
 		iconFn: () => icon('search', 24, 24, []),
 	};
 	createForm(formParams);
+}
+
+
+export function menuAddSectionCalendar(menuContainer, sectionId, options = {}) {
+	
+	// construction du div form input
+	const sectionCalendar = document.createElement('div');
+	sectionCalendar.classList.add('menu-section-calendar');
+	sectionCalendar.id = sectionId;
+	
+	// création de l'input caché (requis par Flatpickr)
+	const dateInput = document.createElement('input');
+	dateInput.type = 'hidden';
+	dateInput.classList.add('hidden');
+	dateInput.id = sectionId + 'Input';
+	sectionCalendar.appendChild(dateInput);
+	
+	// assemblage dans le contenant
+	menuContainer.appendChild(sectionCalendar);
+
+	// initialisation de Flatpickr après que le DOM soit prêt
+	if (typeof flatpickr !== 'undefined') {
+		flatpickr(dateInput, {
+			inline: true, // affiche le calendrier directement (pas d'input)
+			mode: options.mode || 'single', // 'single', 'multiple', 'range'
+			dateFormat: options.dateFormat || 'Y-m-d',
+			locale: options.locale || 'fr',
+			minDate: options.minDate || null,
+			maxDate: options.maxDate || null,
+			defaultDate: options.defaultDate || null,
+			disableMobile: false,
+			onReady: function(selectedDates, dateStr, instance) {
+				try {
+					if (instance && instance.calendarContainer) {
+						instance.calendarContainer.classList.add('custom');
+					}
+					if (instance && instance.input) instance.input.style.display = 'none';
+					if (instance && instance.altInput) instance.altInput.style.display = 'none';
+				} catch (e) { /* silent */ }
+				if (typeof options.onReady === 'function') options.onReady({ dates: selectedDates, dateStr, instance });
+			},
+			onClose: function(selectedDates, dateStr, instance) {
+				if (typeof options.onDateChange === 'function') {
+					options.onDateChange({ dates: selectedDates, dateStr });
+				}
+			}
+		});
+	} else {
+		console.warn('[menuAddSectionCalendar] Flatpickr n\'est pas chargé');
+	}
 }
 
 

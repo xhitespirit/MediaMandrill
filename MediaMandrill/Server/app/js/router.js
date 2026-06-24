@@ -9,8 +9,7 @@ import { domElements, getDom } from './domElements.js';
 const dom = new Proxy(domElements, { get(target, prop) {return target[prop]?.();} });
 
 import { displayArtistDetails, displayAlbumDetails, displayGenreDetails, displayPlaylistDetails } from './views.js';
-import { log } from './utils.js';
-// import { updateNowPlayingFanart } from './player.js';
+import { log, setMarquee, observeMarqueesOnPage } from './utils.js';
 
 
 
@@ -191,7 +190,7 @@ function rebuildView(view) {
 
 
 /**
- * Affiche une vue spécifique et masque les autres
+ * affiche une vue spécifique et masque les autres
  * @param {string} containerId - L'ID du conteneur à afficher
  * @param {int} scrollPos - position du scrollY
  */
@@ -205,16 +204,22 @@ function showContainer(containerId, scrollPos = 0 ) {
     if (containerToShow) {
         containerToShow.classList.remove('hidden');
 		dom.mainContainer.scrollTop = scrollPos;
+		
+		// initialise tous les marquees de la page
+		containerToShow.querySelectorAll('.marquee').forEach(setMarquee);
+		
+		// observe les marquee et leurs changements sur la page
+		observeMarqueesOnPage(containerToShow);
     }
 	
-    // Mettre à jour la classe 'active' - utilise le CACHE et la MAP
+    // mettre à jour la classe 'active' - utilise le CACHE et la MAP
     domCache.navLinks.forEach(link => { link.classList.remove('active') });
 	const navElement = domCache.navMap[containerId];
 	if (navElement) {
 		navElement.classList.add('active');
 	}
 	
-	// Mettre le focus sur l'input de recherche si conteneur recherche affiché 
+	// mettre le focus sur l'input de recherche si conteneur recherche affiché 
 	if (containerId === 'searchContainer') {
 		const searchInput = getDom('searchFormGeneral');
 		if (searchInput) {setTimeout(() => searchInput.focus(), 50);}

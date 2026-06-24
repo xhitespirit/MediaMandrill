@@ -25,7 +25,7 @@ export const cacheStats = {
 
 
 // mise à jour des caches
-setTimeout(() => { updateCache() }, 20000);
+setTimeout(() => { updateCache() }, 40000);
 
 
 

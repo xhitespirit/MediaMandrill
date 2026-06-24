@@ -10,7 +10,7 @@ const dom = new Proxy(domElements, { get(target, prop) {return target[prop]?.();
 
 import { fetchArtists, fetchAuthors, fetchAlbums, fetchGenres, fetchTracks, fetchMoods } from './dataFetching.js'; 
 import { sortByMultipleFields, renderStars, createToggle, cleanString, shuffleArray, debounce, log } from './utils.js';
-import { menuAddSectionForm, menuAddSectionToggle, menuAddSectionList, menuBuildSectionList, menuFilterSectionList, menuController } from './menus.js';
+import { menuAddSectionForm, menuAddSectionToggle, menuAddSectionList, menuBuildSectionList, menuFilterSectionList, menuController, menuAddSectionCalendar } from './menus.js';
 import { displaySection, renderPlayButtons } from './views.js';
 import { tLng, tLngPl } from './i18n.js';
 
@@ -30,16 +30,18 @@ let albumsFiltered = albumsAll;
 let genresFiltered = genresAll;
 let moodsFiltered = moodsAll;
 let ratingsFiltered;
+let addedFiltered;
 
 const rulesSummary = {
 	updated:	false,
+	limit:		{ crit: "oneOf", pattern: [] },
     artist:		{ crit: "oneOf", pattern: [] },
 	author:		{ crit: "oneOf", pattern: [] },
 	album:		{ crit: "oneOf", pattern: [] },
     genre:		{ crit: "oneOf", pattern: [] },
     mood:		{ crit: "oneOf", pattern: [] },
     rating:		{ crit: "oneOf", pattern: [] },
-    limit:		{ crit: "oneOf", pattern: [] },
+	added:		{ crit: "oneOf", pattern: null },
 };
 
 
@@ -70,13 +72,14 @@ export async function initDynamicList() {
 
 async function resetDynamicList () {
 	// Désenregistre les menus
+	menuController.unregister('listLimit');
 	menuController.unregister('listArtist');
 	menuController.unregister('listAuthor');
 	menuController.unregister('listAlbum');
 	menuController.unregister('listGenre');
 	menuController.unregister('listMood');
 	menuController.unregister('listRating');
-	menuController.unregister('listLimit');
+	menuController.unregister('listAdded');
 	
 	// vidage des div
 	const container = getDom('dynListBuild');
@@ -86,12 +89,13 @@ async function resetDynamicList () {
 	
 	// vide les règles
 	rulesSummary.updated = false;
+	rulesSummary.limit =	{ crit: "oneOf", pattern: [] };
 	rulesSummary.artist =	{ crit: "oneOf", pattern: [] };
 	rulesSummary.album =	{ crit: "oneOf", pattern: [] };
 	rulesSummary.genre =	{ crit: "oneOf", pattern: [] };
 	rulesSummary.mood =		{ crit: "oneOf", pattern: [] };
 	rulesSummary.rating =	{ crit: "oneOf", pattern: [] };
-	rulesSummary.limit =	{ crit: "oneOf", pattern: [] };
+	rulesSummary.added =	{ crit: "oneOf", pattern: null };
 	
 	// reconstruction de la vue (et prise en compte du cache à jour
 	initDynamicList();
@@ -99,6 +103,18 @@ async function resetDynamicList () {
 
 
 async function initMenus() {
+	
+	// limite
+	const limits = [
+		{ id: 0, label : tLng('dynlist.limit.none') },
+		{ id: 20, label : '20' },
+		{ id: 50, label : '50' },
+		{ id: 100, label : '100' },
+		{ id: 500, label : '500' },
+	];
+	const menuDefinitionLimit = { name: 'listLimit', title: tLng('dynlist.title.limit'), datatype: 'limit' };
+	await buildMenu('dynListLimit', menuDefinitionLimit, limits);
+	getDom('listLimitMenuSectionListItem100')?.click(); // limite 100 par défaut
 	
 	// artistes
 	const menuDefinitionArtist = { name: 'listArtist', title: tLng('dynlist.title.artists'), datatype: 'artist' };
@@ -156,18 +172,10 @@ async function initMenus() {
 	];
 	const menuDefinitionRating = { name: 'listRating', title: tLng('dynlist.title.rating'), datatype: 'rating' };
 	await buildMenu('dynListRating', menuDefinitionRating, stars);
-
-	// limite
-	const limits = [
-		{ id: 0, label : 'Aucune limite' },
-		{ id: 20, label : '20' },
-		{ id: 50, label : '50' },
-		{ id: 100, label : '100' },
-		{ id: 500, label : '500' },
-	];
-	const menuDefinitionLimit = { name: 'listLimit', title: tLng('dynlist.title.limit'), datatype: 'limit' };
-	await buildMenu('dynListLimit', menuDefinitionLimit, limits);
-	getDom('listLimitMenuSectionListItem100')?.click(); // limite 100 par éfaut
+	
+	// added
+	const menuDefinitionAdded = { name: 'listAdded', title: tLng('dynlist.title.added'), datatype: 'added' };
+	await buildMenu('dynListAdded', menuDefinitionAdded);
 }
 
 
@@ -239,6 +247,17 @@ async function buildMenu(containerId, menuDefinition, menuContent) {
 async function buildMenuContent(menuDefinition, menuDropdown, menuContent) {
 	let sectionToggle;
 	switch (menuDefinition.datatype) {
+		case 'limit':
+			menuAddSectionList(menuDropdown, menuDefinition.name + 'MenuSectionList');
+			menuBuildSectionList({
+				containerId: menuDefinition.name + 'MenuSectionList',
+				dataType: menuDefinition.datatype,
+				content: menuContent,
+				selectType: 'mono',
+				onClickCallback: () => {updateRules();},
+			});
+			break;
+			
 		case 'artist':
 		case 'author':
 			await menuAddSectionForm(menuDropdown, menuDefinition.name + 'MenuSectionForm', menuDefinition.title);
@@ -354,16 +373,15 @@ async function buildMenuContent(menuDefinition, menuDropdown, menuContent) {
 				onClickCallback: () => {updateRules();},
 			});
 			break;
-
-		case 'limit':
-			menuAddSectionList(menuDropdown, menuDefinition.name + 'MenuSectionList');
-			menuBuildSectionList({
-				containerId: menuDefinition.name + 'MenuSectionList',
-				dataType: menuDefinition.datatype,
-				content: menuContent,
-				selectType: 'mono',
-				onClickCallback: () => {updateRules();},
-			});
+			
+		case 'added':
+			menuAddSectionCalendar(
+				menuDropdown,
+				menuDefinition.name + 'MenuSectionCalendar',
+				{
+					onDateChange: ({ dates, dateStr }) => {	updateRules( {calendarDate: dateStr} ); }
+				},
+			);
 			break;
 	}
 }
@@ -388,7 +406,7 @@ function updateMenuContent(containerId, ids) {
 /**
  * mise à jour des règles
  */
-async function updateRules() {
+async function updateRules( params ) {
 	
 	// récupération des critères
 	const summaryCrit = getDomElements(`#dynListBuild .active`);
@@ -403,18 +421,19 @@ async function updateRules() {
 		}
 	});
 	
-	// récupération des pattern selected
+	// récupération des selections dans les listes (classe selected)
 	const summaryContent = getDomElements(`#dynListBuild .selected`);
-	
-	// si pattern selected présentes
 	if (summaryContent.length) {
 		
 		// vide les anciennes patterns
-		["artist", "author", "album", "genre", "mood", "rating", "limit"].forEach(key => { rulesSummary[key].pattern = []; });
+		["limit", "artist", "author", "album", "genre", "mood", "rating"].forEach(key => { rulesSummary[key].pattern = []; });
 		
 		// rempli les patterns
 		summaryContent.forEach(item => {
 			switch (item.type) {
+				case 'limit':
+					rulesSummary.limit.pattern.push(parseInt(item.id, 10));
+					break;
 				case 'artist':
 					rulesSummary.artist.pattern.push(parseInt(item.id, 10));
 					break;
@@ -433,24 +452,31 @@ async function updateRules() {
 				case 'rating':
 					rulesSummary.rating.pattern.push(parseInt(item.id, 10));
 					break;
-				case 'limit':
-					rulesSummary.limit.pattern.push(parseInt(item.id, 10));
-					break;
 			}
 		});
 		rulesSummary.updated = true;
-		
+	}
+	
+	// récupération du calendrier
+	if (params?.calendarDate) {
+		rulesSummary.added.pattern = params.calendarDate;
+		rulesSummary.updated = true;
+	}
+	
+	// si changement
+	if (rulesSummary.updated) {
 		dom.dynListResetBtn.classList.remove('hidden');
 		dom.dynListRefreshBtn.classList.remove('hidden');
 		
 		// afichage de la synthèse
+		displayRuleLimitSummary();
 		displayRuleArtistSummary();
 		displayRuleAuthorSummary();
 		displayRuleAlbumSummary();
 		displayRuleGenreSummary();
 		displayRuleMoodsSummary();
 		displayRuleRatingsSummary();
-		displayRuleLimitSummary();
+		displayRuleAddedSummary();
 		
 		// met à jour dynamiquemenent les listes filtrées
 		tracksFiltered = await updateDynamicList();
@@ -466,6 +492,21 @@ async function updateRules() {
 	else {
 		dom.dynListResetBtn.classList.add('hidden');
 		dom.dynListRefreshBtn.classList.add('hidden');
+	}
+	
+	// affichage de la synthèse de la rule limit
+	function displayRuleLimitSummary() {
+		let htmlDisplay;
+		if (rulesSummary.limit.pattern.length == 1 && parseInt(rulesSummary.limit.pattern[0], 10) !== 0) {
+			// critères
+			htmlDisplay = tLng('dynlist.summary.limit') + rulesSummary.limit.pattern;
+			
+			// insertion dans html et affichage
+			getDom('listLimitMenuTrigger').innerHTML = htmlDisplay;
+		}
+		else {
+			getDom('listLimitMenuTrigger').innerHTML = tLng('dynlist.title.limit');
+		}
 	}
 	
 	// affichage de la synthèse de la rule artists
@@ -581,7 +622,6 @@ async function updateRules() {
 			
 			// generation des *
 			const patternAsInt = rulesSummary.rating.pattern.map(id => parseInt(id, 10));
-			
 			const stars = patternAsInt.map(id => renderStars(id));
 			htmlDisplay += stars.join(',&nbsp;');
 			
@@ -595,24 +635,20 @@ async function updateRules() {
 		}
 	}
 	
-	// affichage de la synthèse de la rule limit
-	function displayRuleLimitSummary() {
+	// affichage de la synthèse de la rule added
+	function displayRuleAddedSummary() {
 		let htmlDisplay;
-		if (rulesSummary.limit.pattern.length == 1 && parseInt(rulesSummary.limit.pattern[0], 10) !== 0) {
+		if (rulesSummary.added?.pattern) {
 			// critères
-			htmlDisplay = tLng('dynlist.summary.limit');
-			
-			// generation des *
-			const patternAsInt = rulesSummary.limit.pattern.map(id => parseInt(id, 10));
-			htmlDisplay += rulesSummary.limit.pattern.sort().join(', ');
+			htmlDisplay = tLng('dynlist.summary.added') + rulesSummary.added.pattern;
 			
 			// insertion dans html et affichage
-			getDom('dynListRuleLimit').innerHTML = htmlDisplay;
-			getDom('dynListRuleLimit').classList.remove('hidden')
+			getDom('dynListRuleAdded').innerHTML = htmlDisplay;
+			getDom('dynListRuleAdded').classList.remove('hidden');
 		}
 		else {
-			getDom('dynListRuleLimit').innerHTML = '';
-			getDom('dynListRuleLimit').classList.add('hidden')
+			getDom('dynListRuleAdded').innerHTML = '';
+			getDom('dynListRuleAdded').classList.add('hidden');
 		}
 	}
 	
@@ -625,7 +661,7 @@ async function updateRules() {
 	}
 	
 	// filtre et renvoie la liste des artistes uniques présents dans tracks
-	function filterArtistsFromTracks (tracks, artistsAll) {
+	function filterArtistsFromTracks(tracks, artistsAll) {
 		// extraire tous les IDs uniques
 		const artistIds = new Set([
 			...tracks.flatMap(track => track.artistId),
@@ -636,7 +672,7 @@ async function updateRules() {
 	}
 	
 	// filtre et renvoie la liste des authors uniques présents dans tracks
-	function filterAuthorsFromTracks (tracks, authorsAll) {
+	function filterAuthorsFromTracks(tracks, authorsAll) {
 		// extraire tous les IDs uniques
 		const authorIds = new Set( tracks.flatMap(track => track.authorId || []) );
 		// filtrer les artistes existants
@@ -644,7 +680,7 @@ async function updateRules() {
 	}
 	
 	// filtre et renvoie la liste des artistes uniques présents dans tracks
-	function filterAlbumsFromTracks (tracks, albumsAll) {
+	function filterAlbumsFromTracks(tracks, albumsAll) {
 		// extraire tous les IDs uniques
 		const albumIds = new Set( tracks.flatMap(track => track.albumId || []) );
 		// filtrer les albums existants
@@ -652,7 +688,7 @@ async function updateRules() {
 	}
 
 	// filtre et renvoie la liste des genres uniques présents dans tracks
-	function filterGenresFromTracks (tracks, genresAll) {
+	function filterGenresFromTracks(tracks, genresAll) {
 		// extraire tous les IDs uniques
 		const genreIds = new Set( tracks.flatMap(track => track.genreId || []) );
 		// filtrer les genres existants
@@ -660,7 +696,7 @@ async function updateRules() {
 	}
 
 	// filtre et renvoie la liste des moods uniques présents dans tracks
-	function filterMoodsFromTracks (tracks) {
+	function filterMoodsFromTracks(tracks) {
 		// extraire tous les moods uniques
 		const moods = new Set( tracks.flatMap(track => track.mood || []) );
 		// transformer en tableau
@@ -668,7 +704,7 @@ async function updateRules() {
 	}
 
 	// filtre et renvoie la liste des notes uniques présents dans tracks
-	function filterRatingsFromTracks (tracks) {
+	function filterRatingsFromTracks(tracks) {
 		// extraire tous les ratings uniques
 		const ratings = new Set( tracks.flatMap(track => track.rating || []) );	
 		// artefact: ajout des ratings 0* si présence de -1
@@ -691,7 +727,9 @@ function updateDynamicList() {
 	tracksFlt = filterTracksByGenres(tracksFlt);
 	tracksFlt = filterTracksByMoods(tracksFlt);
 	tracksFlt = filterTracksByRatings(tracksFlt);
-	tracksFlt = filterTracksByLimit(tracksFlt);
+	tracksFlt = filterTracksByAdded(tracksFlt);
+	
+	return tracksFlt;
 	
 	// utilitaire de filtre par rule sur artist
 	function filterTracksByArtists(tracks) {
@@ -771,16 +809,17 @@ function updateDynamicList() {
 		}
 		return tracksFlt;
 	}
-	
-	// utilitaire de filtre par rule sur Limit
-	function filterTracksByLimit(tracks) {
-		const limit = parseInt(rulesSummary?.limit?.pattern[0], 10);		
+
+	// utilitaire de filtre par rule sur Added
+	function filterTracksByAdded(tracks) {
 		let tracksFlt = tracks;
-		if (typeof limit === 'number' && limit > 0) { tracksFlt = shuffleArray(tracks, limit); }
+		
+		if (rulesSummary.added?.pattern) {
+			const dateAdded = Number( (rulesSummary.added.pattern).replace(/-/g, '') );				
+			tracksFlt = tracks.filter( track => Number(track.dateAdded) >= Number(dateAdded) );
+		}
 		return tracksFlt;
 	}
-	
-	return tracksFlt;
 }
 
 
@@ -788,9 +827,12 @@ function updateDynamicList() {
  * affichage de la liste dynamique
  */
 function displayDynamicList(tracks) {	
-	const songsIds = tracks.map(song => song.songId);
+
+	const tracksLimit = filterTracksByLimit(tracks);
+
+	const songsIds = tracksLimit.map(song => song.songId);
 	let headerContent, headerButtons
-	if (tracks?.length > 0) {
+	if (tracksLimit?.length > 0) {
 		const paramsPlayButtons = {	name: 'dynListResult', type: 'songs',  marginTop: '6px', data: {songsids: shuffleArray(songsIds)}, };
 		headerContent = `<span class="section-title">${tLngPl('dynlist.count.tracks', songsIds.length)}</span>${renderPlayButtons(paramsPlayButtons).outerHTML}`;
 		headerButtons = [ { type: 'LabelAsc', isDefault: true }, { type: 'LabelDesc' }, { type: 'AlbumAsc' }, { type: 'AlbumDesc' }, { type: 'ArtistAsc' }, { type: 'ArtistDesc' }, { type: 'AddedAsc' }, { type: 'AddedDesc' } ];	
@@ -806,6 +848,15 @@ function displayDynamicList(tracks) {
 		headerDisplayButtons: headerButtons,
 		fields: ['albumName'],
 	};
-	displaySection(params, tracks);
+	displaySection(params, tracksLimit);
+	
+	
+	// utilitaire de filtre par rule sur Limit
+	function filterTracksByLimit(tracks) {
+		const limit = parseInt(rulesSummary?.limit?.pattern[0], 10);
+		let tracksLimit = tracks;
+		if (typeof limit === 'number' && limit > 0) { tracksLimit = shuffleArray(tracks, limit); }
+		return tracksLimit;
+	}
 }
 

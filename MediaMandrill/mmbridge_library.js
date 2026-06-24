@@ -107,7 +107,8 @@ async function libraryTracks(requestId) {
 				s.Genre, sg.IDGenre,
 				s.DiscNumber, s.TrackNumber, s.Year, s.Mood, s.Occasion, s.Rating, s.SongLength,
 				s.Bitrate, s.SamplingFrequency, s.BPS,
-				s.SongPath, s.Extension, s.DateAdded
+				s.SongPath, s.Extension,				
+				strftime('%Y%m%d', (s.DateAdded - 25569) * 86400, 'unixepoch') AS DateAdded
 				-- s.GroupDesc, s.LastTimePlayed, s.PlayCounter
 			FROM
 				Songs s
@@ -403,7 +404,7 @@ async function libraryTrack(songId, requestId) {
 				s.DiscNumber, s.TrackNumber, s.Year, s.Mood, s.Occasion, s.Rating, s.SongLength,
 				s.Bitrate, s.SamplingFrequency, s.BPS,
 				s.SongPath, s.Extension,				
-				strftime('%Y%m%d', (s.DateAdded - 25569) * 86400, 'unixepoch') AS DateAdded				
+				strftime('%Y%m%d', (s.DateAdded - 25569) * 86400, 'unixepoch') AS DateAdded
 				--s.GroupDesc, s.LastTimePlayed, s.PlayCounter
 			FROM
 				Songs s

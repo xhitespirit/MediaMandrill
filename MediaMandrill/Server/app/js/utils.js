@@ -241,18 +241,16 @@ export function createToggle(btn, groupClass, actionFn) {
  * a appeler pour debug: log dans la console l'état du DOM pour l'élément elmt
  */
 export function logDomElement(elmt, stamp) {
-
-  if (!elmt) {
-    console.warn(`[logDomElement](${stamp}) Aucun élément trouvé pour "${elmt}"`);
-    return;
-  }
-
-  console.group(`[logDomElement](${stamp}) ${elmt}`);
-  log('Objet DOM complet :');
-  console.dir(elmt);
-  log('HTML brut :');
-  log(elmt.outerHTML);
-  console.groupEnd();
+	if (!elmt) {
+		console.warn(`[logDomElement](${stamp}) Aucun élément trouvé pour "${elmt}"`);
+		return;
+	}
+	console.group(`[logDomElement](${stamp}) ${elmt}`);
+	log('Objet DOM complet :');
+	console.dir(elmt);
+	log('HTML brut :');
+	log(elmt.outerHTML);
+	console.groupEnd();
 }
 
 
@@ -260,10 +258,10 @@ export function logDomElement(elmt, stamp) {
  * fonction qui applatit str (mise en minuscule et suppression des accents)
  */
 export function cleanString(str) {
-  return str
-    .normalize('NFD')                     // Décompose les lettres accentuées
-    .replace(/[\u0300-\u036f]/g, '')      // Supprime les diacritiques (accents)
-    .toLowerCase();                       // Rend la comparaison insensible à la casse
+	return str
+		.normalize('NFD')                     // Décompose les lettres accentuées
+		.replace(/[\u0300-\u036f]/g, '')      // Supprime les diacritiques (accents)
+		.toLowerCase();                       // Rend la comparaison insensible à la casse
 }
 
 
@@ -456,8 +454,6 @@ export async function updateFanart(containerId, artistName) {
 		if (artistName) {
 			const audioDb = await getInfoFromTheAudioDB({ searchType: 'artist', artistName: artistName });
 			const fanarts = audioDb?.fanarts ? audioDb.fanarts : null;
-			// const fanartTv = await getInfoFromFanartTv(artistName);
-			// const fanarts = fanartTv?.fanarts ? fanartTv.fanarts : null;
 			
 			// affichage du nouveau si existe
 			if (fanarts?.length > 0) {
@@ -620,3 +616,166 @@ export async function getInfoFromTheAudioDB(params) {
 	}
 }
 
+
+/**
+ * crée un marquee (texte défilant) si le texte dépasse la taille de son élément
+ */
+export async function setMarquee(el) {
+	
+	// vérifie si el existe et si le texte dépasse
+	if (!el || !(el instanceof Element) || !isOverflowing(el)) return;
+
+	// si déjà initialisé, sortir
+	if (el.querySelector('.marquee-inner')) return;
+
+	// construction de la structure
+	const inner = document.createElement('span');
+	inner.className = 'marquee-inner';
+	inner.style.display = 'inline-block';
+	inner.style.whiteSpace = 'nowrap';
+	inner.style.willChange = 'transform';
+
+	const item = document.createElement('span');
+	item.className = 'marquee-item';
+	item.style.display = 'inline-block';
+
+	// déplacer le contenu existant dans item
+	while (el.firstChild) item.appendChild(el.firstChild);
+	inner.appendChild(item);
+
+	const spacer = document.createElement('span');
+	spacer.className = 'marquee-spacer';
+	spacer.style.display = 'inline-block';
+	spacer.style.width = '2rem';
+	inner.appendChild(spacer);
+
+	const clone = item.cloneNode(true);
+	clone.className = 'marquee-clone';
+	inner.appendChild(clone);
+
+	el.appendChild(inner);
+
+    // forcer reflow avant mesures
+    el.offsetWidth;
+
+    const firstWidth = item.scrollWidth;
+    const containerWidth = el.clientWidth;
+    const spacerWidth = Math.max(parseFloat(getComputedStyle(spacer).width) || 32, Math.round(containerWidth * 0.35));
+    spacer.style.width = spacerWidth + 'px';
+
+    const distance = firstWidth + spacerWidth;
+    const negDistance = -distance;
+    const scrollDurationMs = Math.max(8000, Math.ceil(distance / 40) * 1000);
+    const PAUSE_MS = 4000;
+    
+    // stockage de l'animation actuelle pour pouvoir la contrôler
+    let currentAnim = null;
+    let pauseTimeoutId = null;
+
+    function runOnce() {
+        const anim = inner.animate(
+            [
+                { transform: 'translateX(0)' },
+                { transform: `translateX(${negDistance}px)` }
+            ],
+            {
+                duration: scrollDurationMs,
+                easing: 'linear',
+                fill: 'forwards'
+            }
+        );
+
+        currentAnim = anim;
+
+        anim.onfinish = () => {
+            // reset instantané quand le clone est arrivé à l'origine
+            inner.style.transform = 'translateX(0)';
+            // relance après pause
+            pauseTimeoutId = setTimeout(runOnce, PAUSE_MS);
+        };
+    }
+
+    // gestion du hover: pause/reprise de l'animation
+    el.addEventListener('mouseenter', () => {
+        if (currentAnim) {
+            currentAnim.pause();
+        }
+        if (pauseTimeoutId) {
+            clearTimeout(pauseTimeoutId);
+        }
+    });
+
+    el.addEventListener('mouseleave', () => {
+        if (currentAnim && currentAnim.playState === 'paused') {
+            currentAnim.play();
+        }
+        // relance après pause initiale si l'animation est terminée
+        if (currentAnim && currentAnim.playState === 'finished') {
+            inner.style.transform = 'translateX(0)';
+            pauseTimeoutId = setTimeout(runOnce, PAUSE_MS);
+        }
+    });
+
+    // première exécution après pause initiale
+    setTimeout(runOnce, PAUSE_MS);
+}
+
+
+/**
+ * utilitaire pour déterminer si le contenu d'un élément dépasse de sa largeur
+ */
+function isOverflowing(el) {
+    if (!el || !(el instanceof Element)) return false;
+    return el.scrollWidth > el.clientWidth;
+}
+
+
+/**
+ * utilitaire d'observation des éléments de classe marquee
+ */
+let marqueeObserver = null;
+export function observeMarqueesOnPage(pageRoot) {
+    if (marqueeObserver) {
+        marqueeObserver.disconnect();
+        marqueeObserver = null;
+    }
+    if (!pageRoot) return;
+
+    marqueeObserver = new MutationObserver(mutations => {
+        const marqueesToUpdate = new Set();
+
+        for (const mutation of mutations) {
+			
+            if (mutation.type === 'childList') {				
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType !== 1) return;
+                    if (node.matches('.marquee')) {
+						marqueesToUpdate.add(node);
+					}
+                    node.querySelectorAll('.marquee').forEach(el => {
+						marqueesToUpdate.add(el);
+					});
+                });
+
+                const marqueeParent = mutation.target instanceof Element && mutation.target.closest('.marquee');
+                if (marqueeParent) {
+					marqueesToUpdate.add(marqueeParent);
+				}
+            }
+
+            if (mutation.type === 'characterData') {
+                const marqueeParent = mutation.target.parentElement?.closest('.marquee');
+                if (marqueeParent) {
+					marqueesToUpdate.add(marqueeParent);
+				}
+            }
+        }
+        marqueesToUpdate.forEach(setMarquee);
+    });
+
+    marqueeObserver.observe(pageRoot, {
+        childList: true,
+        characterData: true,
+        subtree: true
+    });
+}

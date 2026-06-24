@@ -275,7 +275,7 @@ async function buildDateForm (containerId, songDate) {
 	
 	const formParams = {
 		containerId: containerId,
-		classList: ['w110'],
+		classList: ['w120'],
 		searchInputId: 'songPropDateFormInput',
 		searchFormLabel: songDate,
 	};

@@ -628,7 +628,7 @@ export async function createTracks(contentDivId, tracks, showTrack = false, show
 							${icon('play', 16, 16, []).outerHTML}
                         </button>
                         ${showTrack ? trackNumber : ''}
-                        <span class="song-title">${track.title}</span>
+                        <span class="song-title marquee">${track.title}</span>
                     </div>
 
                     <div class="song-right">
@@ -649,7 +649,7 @@ export async function createTracks(contentDivId, tracks, showTrack = false, show
                         </div>
                     </div>
                 </div>
-            `;
+            `;			
         })
     );
 	

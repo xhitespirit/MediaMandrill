@@ -10,7 +10,6 @@
 
 	"burger.cast": "Cast to",
 	"burger.mm": "Settings",
-
 	"burger.mm.testfn": "(test function)",
 	"burger.mm.refreshviews": "Refresh views",
 	"burger.mm.refreshcache": "Refresh library cache",
@@ -81,13 +80,15 @@
 	"views.btn.filtgenre": "Genre",
 	
 	"dynlist.crit": "List criteria",
+	"dynlist.title.limit": "Limit",
 	"dynlist.title.artists": "Artists",
 	"dynlist.title.authors": "Composers",
 	"dynlist.title.albums": "Albums",
 	"dynlist.title.genres": "Genres",
 	"dynlist.title.moods": "Moods",
 	"dynlist.title.rating": "Rating",
-	"dynlist.title.limit": "Limit",
+	"dynlist.title.added": "Added since",
+	"dynlist.limit.none": "None",
 	"dynlist.btn.reset": "Reset",
 	"dynlist.btn.refresh": "Generate",
 	"dynlist.toggle.oneof": "One of",
@@ -100,7 +101,9 @@
 	"dynlist.summary.moods.oneof": "&bull; Moods among: ",
 	"dynlist.summary.moods.allof": "&bull; These moods: ",	
 	"dynlist.summary.rating": "&bull; Rating among:&nbsp;",
-	"dynlist.summary.limit": "&bull; Limit:&nbsp;",
+	"dynlist.summary.limit": "Limit:&nbsp;",
+	"dynlist.summary.added": "&bull; Added since:&nbsp;",
+	
 	"dynlist.count.tracks.one": "{{count}} title",
 	"dynlist.count.tracks.more": "{{count}} titles",
 	"dynlist.count.notrack": "No title",

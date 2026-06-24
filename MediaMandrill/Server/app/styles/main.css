@@ -123,6 +123,7 @@ body {
 
 .section-header .right-column {
     display: flex;
+    align-items: flex-end;
     text-align: right;
     gap: 4px;
 }
@@ -168,8 +169,8 @@ body {
     gap: 6px;
     box-sizing: border-box; /* Inclure le padding */
 }
-.search-form.w110 {
-    width: 110px;
+.search-form.w120 {
+    width: 120px;
 }
 
 .search-form-icon {
