@@ -61,7 +61,7 @@ export function menuAddSectionCalendar(menuContainer, sectionId, options = {}) {
 			inline: true, // affiche le calendrier directement (pas d'input)
 			mode: options.mode || 'single', // 'single', 'multiple', 'range'
 			dateFormat: options.dateFormat || 'Y-m-d',
-			locale: options.locale || 'fr',
+			locale: options.locale || 'en',
 			minDate: options.minDate || null,
 			maxDate: options.maxDate || null,
 			defaultDate: options.defaultDate || null,

@@ -12,7 +12,7 @@ import { fetchArtists, fetchAuthors, fetchAlbums, fetchGenres, fetchTracks, fetc
 import { sortByMultipleFields, renderStars, createToggle, cleanString, shuffleArray, debounce, log } from './utils.js';
 import { menuAddSectionForm, menuAddSectionToggle, menuAddSectionList, menuBuildSectionList, menuFilterSectionList, menuController, menuAddSectionCalendar } from './menus.js';
 import { displaySection, renderPlayButtons } from './views.js';
-import { tLng, tLngPl } from './i18n.js';
+import { tLng, tLngPl, currentLocale } from './i18n.js';
 
 
 
@@ -379,6 +379,7 @@ async function buildMenuContent(menuDefinition, menuDropdown, menuContent) {
 				menuDropdown,
 				menuDefinition.name + 'MenuSectionCalendar',
 				{
+					locale: currentLocale,
 					onDateChange: ({ dates, dateStr }) => {	updateRules( {calendarDate: dateStr} ); }
 				},
 			);
