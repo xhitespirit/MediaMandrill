@@ -1,6 +1,6 @@
 {
 	"title": "MediaMandrill",
-	"version": "1.2.0",
+	"version": "1.2.2",
 	"id": "MediaMandrill",
 	"description": "Web interface for MediaMonkey 2024",
 	"type": "Remote Access",
