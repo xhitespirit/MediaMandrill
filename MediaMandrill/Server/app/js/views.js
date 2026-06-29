@@ -30,7 +30,6 @@ export async function initViews() {
 	
 	let params;
 	let buttons;
-	let btnArtistsHeader;
 	
 	// welcome
 	// welcomeAlbumsLatestView
@@ -80,21 +79,22 @@ export async function initViews() {
 	
 	
 	// artistes
+	let btnArtistsHeader, btnAuthorsHeader;
 	btnArtistsHeader = {
 		id: 'artistsTypeBtnArtists',
-		classList: ['button-artists', 'toggle-artistsType', 'active', 'nomedia'],
+		classList: ['button-artists', 'nav-link', 'nomedia', 'active'],
 		icon: 'interpreter',
 		title: tLng('views.artists.title'),
 	};
+	btnAuthorsHeader = {
+		id: 'artistsTypeBtnAuthors',
+		classList: ['button-artists', 'nav-link', 'nomedia'],
+		icon: 'composer',
+		title: tLng('views.authors.title'),
+	};
 	dom.artistsType.innerHTML = '';
 	dom.artistsType.appendChild(addButton(btnArtistsHeader));
-	createToggle(getDom(btnArtistsHeader.id), 'toggle-artistsType', async () => {
-		dom.artistsView.classList.remove('hidden');
-		dom.authorsView.classList.add('hidden');
-		dom.artistsViewContentAlphaBar.classList.remove('hidden')
-		dom.authorsViewContentAlphaBar.classList.add('hidden')
-	});
-	
+	dom.artistsType.appendChild(addButton(btnAuthorsHeader));
 	buttons = [ { type: 'DisplayGrid', isDefault: true }, { type: 'DisplayList' }, { type: 'LabelAsc', isDefault: true }, { type: 'LabelDesc' }, { type: 'FilterGenre' } ];
 	params = {
 		containerId: 'artistsView',
@@ -109,19 +109,20 @@ export async function initViews() {
 	
 	// compositeurs
 	btnArtistsHeader = {
-		id: 'artistsTypeBtnAuthors',
-		classList: ['button-artists', 'toggle-artistsType', 'nomedia'],
+		id: 'authorsTypeBtnArtists',
+		classList: ['button-artists', 'nav-link', 'nomedia'],
+		icon: 'interpreter',
+		title: tLng('views.artists.title'),
+	};
+	btnAuthorsHeader = {
+		id: 'authorsTypeBtnAuthors',
+		classList: ['button-artists', 'nav-link', 'nomedia', 'active'],
 		icon: 'composer',
 		title: tLng('views.authors.title'),
 	};
-	dom.artistsType.appendChild(addButton(btnArtistsHeader));
-	createToggle(getDom(btnArtistsHeader.id), 'toggle-artistsType', async () => {
-		dom.artistsView.classList.add('hidden');
-		dom.authorsView.classList.remove('hidden');
-		dom.artistsViewContentAlphaBar.classList.add('hidden')
-		dom.authorsViewContentAlphaBar.classList.remove('hidden')
-	});
-
+	dom.authorsType.innerHTML = '';
+	dom.authorsType.appendChild(addButton(btnArtistsHeader));
+	dom.authorsType.appendChild(addButton(btnAuthorsHeader));
 	buttons = [ { type: 'DisplayGrid', isDefault: true }, { type: 'DisplayList' }, { type: 'LabelAsc', isDefault: true }, { type: 'LabelDesc' }, { type: 'FilterGenre' } ];
 	params = {
 		containerId: 'authorsView',
@@ -170,7 +171,7 @@ export async function initViews() {
 		headerDisplayButtons: buttons,
 		fields: [],
 	};
-	displaySection(params, await fetchPlaylists());
+	displaySection(params, await fetchPlaylists());	
 }
 
 
@@ -492,7 +493,9 @@ export async function createSectionContent(params) {
 	}
 	
 	// alphabar
-	if (showAlphaBar) { setupAlphaBar(contentDivId, '.card-title'); }
+	if (showAlphaBar) {
+		setupAlphaBar(contentDivId, '.card-title');
+	}
 }
 
 
@@ -683,10 +686,6 @@ export function renderSectionContent(params) {
 	// gestion affichage: ordre
 	if (sort) {	sortByDataset(container, sort);	}
 	
-	// alphabar
-	const showAlphaBar = showFields.includes('AlphaBar');
-	setupAlphaBar(contentDivId, '.card-title');
-	
 	function sortByDataset(container, sortConfig) {
 		const items = [...container.children];
 		items.sort((a, b) => {
@@ -840,7 +839,7 @@ export async function displayArtistDetails(artistId) {
 		displaySection(params, artistAlbums);
 		
 		// liste des titres
-		buttons = [ { type: 'LabelAsc', isDefault: true }, { type: 'LabelDesc' }, { type: 'AlbumAsc' }, { type: 'AlbumDesc' }, { type: 'DateAsc' }, { type: 'DateDesc' } ];
+		buttons = [ { type: 'LabelAsc', isDefault: true }, { type: 'LabelDesc' }, { type: 'AlbumAsc' }, { type: 'AlbumDesc' }, { type: 'DateAsc' }, { type: 'DateDesc' }, { type: 'AddedAsc' }, { type: 'AddedDesc' } ];
 		params = {
 			containerId: 'artistDetailsSongs',
 			type: 'tracks',
@@ -1071,7 +1070,6 @@ export function renderGenreLinks(genres, genreIds) {
 
 // Utilitaire pour générer les boutons de lecture
 export function renderPlayButtons(params) {
-	
 	// params = {
 		// name: 'Album',
 		// type: 'album',
@@ -1234,7 +1232,6 @@ async function buildMenuContent(menuDefinition, menuDropdown, menuContent) {
 
 // Utilitaire pour générer les boutons d'affichage
 function addButton(params) {
-
 	// const btnParams = {
 		// id: params.id,
 		// classList: params.classList,

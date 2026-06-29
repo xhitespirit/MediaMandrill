@@ -12,12 +12,23 @@ import { fetchArtistTracks, fetchAlbumTracks, fetchGenre, fetchPlaylist } from '
 import { playSongs, insertSongs, playSongInCurrentPlaylist } from './playback.js';
 
 import { updateHash, showView, goBack, goParent } from './router.js';
-import { log } from './utils.js';
+import { log, debounce } from './utils.js';
 import { songProperties } from './songProperties.js';
 
+import { activeContainer } from './router.js';
+
+import { playerFullscreen } from './player.js';
 
 
-export async function initGlobalClicks() {
+
+export function initEvents() {
+	initGlobalClicks();
+	initGlobalKeydown();
+}
+
+
+// clicks --------------------------------------------------------------------------
+async function initGlobalClicks() {
 	
 	// Gestionnaire central des clics
 	document.body.addEventListener('click', async (event) => {
@@ -51,10 +62,9 @@ export async function initGlobalClicks() {
 		
 		// player
 		if (await clickPlayerAlbumArt(event)) return;
-		
+		if (await clickPlayerFullscreen(event)) return;
 	});
 }
-
 
 
 // navigation --------------------------------------------------------------------------
@@ -69,10 +79,15 @@ function clickNavLink (event) {
 		else if (target.id === 'navPlaylists')	{ showView('playlists') }
 		else if (target.id === 'navDynList')	{ showView('dynlist') }
 		else if (target.id === 'navNowPlaying')	{ showView('nowplaying') }
+		
+		else if (target.id === 'artistsTypeBtnAuthors')	{ showView('authors') }
+		else if (target.id === 'authorsTypeBtnArtists')	{ showView('artists') }
+		
 		return true;
 	}
 	return false;
 }
+
 
 function clickNavSearch(event) {
 	const target = event.target.closest('.button-nav-search');
@@ -211,7 +226,7 @@ async function clickButtonPlayAll(event) {
 	
 	event.preventDefault();
 	
-	// songs --------------------------------------------------------------
+	// songs
 	if (target.classList.contains('songs')) {
 		const songIds = target.dataset.songsids?.split(',').map(id => parseInt(id, 10));
 		if (songIds?.length > 0) {
@@ -221,7 +236,7 @@ async function clickButtonPlayAll(event) {
 		}
 	}
 	
-	// artiste --------------------------------------------------------------
+	// artiste
 	if (target.classList.contains('artist')) {
 		const artistId = parseInt(target.dataset.artistid);
 		if (!isNaN(artistId)) {
@@ -232,7 +247,7 @@ async function clickButtonPlayAll(event) {
 		}
 	}
 
-	// album --------------------------------------------------------------
+	// album
 	if (target.classList.contains('album')) {
 		const albumId = parseInt(target.dataset.albumid);
 		if (!isNaN(albumId)) {
@@ -243,7 +258,7 @@ async function clickButtonPlayAll(event) {
 		}
 	}
 	
-	// genre --------------------------------------------------------------
+	// genre
 	if (target.classList.contains('genre')) {
 		const genreId = parseInt(target.dataset.genreid);
 		if (!isNaN(genreId)) {
@@ -254,7 +269,7 @@ async function clickButtonPlayAll(event) {
 		}
 	}
 	
-	// playlist --------------------------------------------------------------
+	// playlist
 	if (target.classList.contains('playlist')) {
 		const playlistId = parseInt(target.dataset.playlistid);
 		if (!isNaN(playlistId)) {
@@ -310,7 +325,6 @@ async function clickSongTitle(event) {
 	event.stopPropagation();
 	event.preventDefault();
 	
-	// edit ------------------------------------------------------------	
 	const targetSongId = event.target.closest('[data-songid]');
 	const songId = parseInt(targetSongId?.dataset.songid, 10);
 	
@@ -340,4 +354,101 @@ function clickPlayerAlbumArt (event) {
 	return true;
 }
 
+function clickPlayerFullscreen(event) {
+	const target = event.target.closest('.button-fullscreen');
+	if (target) {
+		event.preventDefault();
+		playerFullscreen();
+		return true;
+	}
+	return false;	
+}
 
+
+// keyscroll --------------------------------------------------------------------------
+function initGlobalKeydown() {
+	let keydownBuffer = '';
+	
+	const keyscrollSearch = debounce((pattern) => {
+		// scroll sur .card-title
+		keyscrollCardTitle(pattern);
+		keydownBuffer = '';
+	}, 500);
+
+	document.body.addEventListener('keydown', (event) => {
+		const key = keydownHandleKeys(event);
+			if (!key) {
+				keydownBuffer = '';
+				return;
+			}
+			keydownBuffer += key;
+			event.preventDefault();
+			keyscrollSearch(keydownBuffer);
+		});
+}
+
+
+function keydownHandleKeys(event) {
+	const container = dom[activeContainer.id];
+	if (event.ctrlKey || event.altKey || event.metaKey) return null;
+	if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return null;
+
+	const ignoredKeys = [
+		'Enter', 'Escape', 'ArrowUp', 'ArrowDown',
+		'ArrowLeft', 'ArrowRight', 'Backspace',
+		'Delete', 'Tab'
+	];
+	if (ignoredKeys.includes(event.key)) return null;
+	if (event.key.length !== 1) return null;
+
+	return event.key.toUpperCase();
+}
+
+
+function keyscrollCardTitle(pattern) {
+	const container = dom[activeContainer.id];
+	if (!container?.classList.contains('keyscroll')) return false;
+
+	const cards = container.querySelectorAll('.card-title');
+	const target = [...cards].find(card => titleMatches(card.textContent, pattern));
+	
+	if (!target) return false;
+
+	// scroll à target
+	target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	
+	// trouver la card parente
+	const parentCard = target.closest('.card') || target.parentElement;
+	if (!parentCard) return false;
+
+	// animation highlight
+	parentCard.classList.remove('keyscroll-highlight');
+	void parentCard.offsetWidth;
+	parentCard.classList.add('keyscroll-highlight');
+	setTimeout(() => { parentCard.classList.remove('keyscroll-highlight'); }, 2000);
+	
+	return true;
+
+	function normalizeTitle(text) {
+		return (text || '')
+			.trim()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/^(the |le |la |les |l['’])/i, '')
+			.toUpperCase();
+	}
+
+	function titleMatches(text, pattern) {
+		const titleText = (text || '').trim();
+		const normalizedTitle = normalizeTitle(titleText);
+		const normalizedPattern = normalizeTitle(pattern);
+		const rawPattern = (pattern || '').trim().toUpperCase();
+
+		if (!rawPattern) return false;
+
+		return (
+			normalizedTitle.startsWith(normalizedPattern) ||
+			titleText.toUpperCase().startsWith(rawPattern)
+		);
+	}
+}

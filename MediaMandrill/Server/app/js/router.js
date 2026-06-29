@@ -14,10 +14,13 @@ import { log, setMarquee, observeMarqueesOnPage } from './utils.js';
 
 
 // Initialisation
+export const activeContainer = {
+	id: null,
+};
 const hashHistory = [];
 const viewHistory = {
 	artists: '#/artists',
-	// authors: '#/authors',
+	authors: '#/authors',
 	albums: '#/albums',
 	genres: '#/genres',
 	playlists: '#/playlists',
@@ -27,12 +30,12 @@ let isGoingBack = false;
 const routeConfigs = [
 	{ path: '#/welcome', action: () => 		{ showContainer('welcomeContainer', scrollMemory['#/welcome']); } },
 	{ path: '#/artists', action: () => 		{ showContainer('artistsContainer', scrollMemory['#/artists']); } },
+	{ path: '#/authors', action: () => 		{ showContainer('authorsContainer', scrollMemory['#/authors']); } },
 	{ path: '#/albums', action: () => 		{ showContainer('albumsContainer', scrollMemory['#/albums']); } },
 	{ path: '#/genres', action: () => 		{ showContainer('genresContainer', scrollMemory['#/genres']); } },
 	{ path: '#/playlists', action: () => 	{ showContainer('playlistsContainer', scrollMemory['#/playlists']); } },
 	{ path: '#/dynlist', action: () => 		{ showContainer('dynListContainer', scrollMemory['#/dynlist']); } },
 	
-	// { path: '#/nowplaying', action: () => 	{ showContainer('npContainer'); updateNowPlayingFanart(); } },
 	{ path: '#/nowplaying', action: () => 	{ showContainer('npContainer'); } },
 	{ path: '#/search', action: () => 		{ showContainer('searchContainer', scrollMemory['#/search']); } },
 
@@ -74,6 +77,7 @@ function cacheDomElements() {
 	domCache.containerMap = {
 		welcomeContainer: dom.welcomeContainer,
 		artistsContainer: dom.artistsContainer,
+		authorsContainer: dom.authorsContainer,
 		albumsContainer: dom.albumsContainer,
 		genresContainer: dom.genresContainer,
 		playlistsContainer: dom.playlistsContainer,
@@ -90,6 +94,7 @@ function cacheDomElements() {
 		welcomeContainer: dom.navWelcome,
 		artistsContainer: dom.navArtists,
 		artistDetailsContainer: dom.navArtists,
+		authorsContainer: dom.navArtists,
 		albumsContainer: dom.navAlbums,
 		albumDetailsContainer: dom.navAlbums,
 		genresContainer: dom.navGenres,
@@ -169,7 +174,7 @@ export function showView(view) {
 	const viewRoutes = {
 		welcome:	'#/welcome',
 		artists:	location.hash.startsWith('#/artist/') ? '#/artists' : viewHistory.artists,
-		// authors:	location.hash.startsWith('#/authors/') ? '#/authors' : viewHistory.authors,
+		authors:	location.hash.startsWith('#/authors/') ? '#/authors' : viewHistory.authors,
 		albums:		location.hash.startsWith('#/album/') ? '#/albums' : viewHistory.albums,
 		genres:		location.hash.startsWith('#/genre/') ? '#/genres' : viewHistory.genres,
 		playlists:	location.hash.startsWith('#/playlist/') ? '#/playlists' : viewHistory.playlists,
@@ -194,7 +199,7 @@ function rebuildView(view) {
  * @param {string} containerId - L'ID du conteneur à afficher
  * @param {int} scrollPos - position du scrollY
  */
-function showContainer(containerId, scrollPos = 0 ) {
+function showContainer(containerId, scrollPos = 0) {
 	// Masque les conteneurs - utilise le CACHE au lieu de querySelectorAll
 	domCache.containerViews.forEach(cont => { cont.classList.add('hidden') });
 	domCache.containerDetails.forEach(cont => { cont.classList.add('hidden') });
@@ -212,7 +217,7 @@ function showContainer(containerId, scrollPos = 0 ) {
 		observeMarqueesOnPage(containerToShow);
     }
 	
-    // mettre à jour la classe 'active' - utilise le CACHE et la MAP
+    // mettre à jour la classe 'active' sur les navLinks
     domCache.navLinks.forEach(link => { link.classList.remove('active') });
 	const navElement = domCache.navMap[containerId];
 	if (navElement) {
@@ -224,6 +229,9 @@ function showContainer(containerId, scrollPos = 0 ) {
 		const searchInput = getDom('searchFormGeneral');
 		if (searchInput) {setTimeout(() => searchInput.focus(), 50);}
 	}
+	
+	// mettre à jour la const globale activeContainer
+	activeContainer.id = containerId;
 }
 
 
@@ -254,7 +262,7 @@ export function updateHash(newHash) {
 }
 
 
-export function navigateTo(newHash) {	
+function navigateTo(newHash) {	
 	// Met à jour l'historique
 	updateHashHistory(newHash);
 

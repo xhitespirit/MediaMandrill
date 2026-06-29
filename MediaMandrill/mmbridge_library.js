@@ -1,4 +1,4 @@
-// console.log('[mmbridge_library.js][function] var', var);
+// log('[mmbridge_library.js][function] var', var);
 
 'use strict';
 
@@ -15,7 +15,7 @@ const splitSemicol = val => {
 };
 
 
-// log('[mmbridge_library.js][function] var', var);
+// log
 function log(...args) {
     const ts = new Date().toISOString();
     console.log(ts, ...args);

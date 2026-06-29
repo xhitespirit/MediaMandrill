@@ -384,13 +384,11 @@ async function updateNowPlayingView() {
 				: '';
 				
 			// année
-			dom.npYear.innerHTML = currentSong?.year
-				? bull + currentSong.year
-				: '';
+			dom.npYear.innerHTML = currentSong.year  || '';
 
 			// Genres
 			dom.npGenres.innerHTML = currentSong?.genre?.length > 0
-				? renderGenreLinks?.(currentSong.genre, genreIds) || currentSong.genre.join(', ')
+				? bull + renderGenreLinks?.(currentSong.genre, genreIds) || currentSong.genre.join(', ')
 				: '';
 
 			// humeur
@@ -642,3 +640,26 @@ function setVolumeDiff(volumeDiff) {
 	else if (volume > 1) { volume = 1; }
 	setPlayerVolume(volume);
 }
+
+
+/**
+ * définit le volume sonore (entre 0 et 1)
+ */
+export function playerFullscreen() {
+	dom.navBar.classList.toggle('hidden');
+	
+	dom.playerBar.classList.toggle('fullscreen');
+	getDom('playerInfo').classList.toggle('hidden');
+	getDom('playerControls').classList.toggle('hidden');
+	getDom('playerVolume').classList.toggle('hidden');
+	
+	getDom('npRight').classList.toggle('hidden');
+
+	dom.npRightBar.classList.toggle('hidden');
+	
+	dom.npContainer.classList.toggle('fullscreen');
+	dom.npContainer.classList.contains('fullscreen')
+		? document.documentElement.requestFullscreen()
+		: document.exitFullscreen();
+}
+

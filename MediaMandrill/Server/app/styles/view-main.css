@@ -41,7 +41,7 @@
 	border-radius: 12px;
 	overflow: hidden;
 	box-shadow: 0 4px 16px var(--shadow-medium);
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition: transform 0.2s, box-shadow 0.2s, background-color .4s ease;
 	text-decoration: none;
 	color: var(--text-light);
 	display: flex;
@@ -115,7 +115,7 @@
 	background: none;
 	width: 100%;
 	box-sizing: border-box;
-	transition: box-shadow 0.2s, transform 0.2s;
+	transition: box-shadow 0.2s, transform 0.2s, background-color .4s ease;
     text-decoration: none;
 }
 .view-list .card:hover, .view-column .card:hover {
@@ -165,6 +165,10 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.card.keyscroll-highlight {
+    background-color: var(--accent-color);	
 }
 
 .card-image {
@@ -263,7 +267,6 @@
     color: var(--accent-color);
 	background-color: var(--bg-light);
 }
-
 
 
 @media (max-width: 960px) {

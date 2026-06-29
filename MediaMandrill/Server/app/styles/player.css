@@ -16,6 +16,11 @@
     color: var(--text-light);
     box-sizing: border-box; /* Inclure le padding */
 }
+.player-bar.fullscreen {
+    justify-content: center;
+    background-color: transparent;
+    box-shadow: none;
+}
 
 .player-info {
     display: flex;
@@ -47,6 +52,9 @@
     max-width: 25%;
     gap: 10px;
     justify-content: flex-end;
+}
+.player-bar.fullscreen .player-progress{
+    max-width: 80%;
 }
 
 .player-album-art {

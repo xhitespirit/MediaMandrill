@@ -30,6 +30,7 @@
 	"btn.back": "Back",
 	"btn.up": "Up",
 	"btn.parent": "Parent",
+	"btn.fullscreen": "Full screen",
 
 	"views.albumslatest.title": "Latest albums added",
 	"views.albumsrandom.title": "Random albums",

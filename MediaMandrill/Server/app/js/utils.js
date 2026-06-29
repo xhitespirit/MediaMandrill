@@ -217,18 +217,13 @@ export function replaceClassByPrefix(element, prefix, newClass) {
  * actionFn: la fonction déclenchée par le clic sur le bouton 
  */
 export function createToggle(btn, groupClass, actionFn) {
-	
 	btn.addEventListener('click', () => {
-		
 		// Sélectionne tous les boutons du même groupe (par classe)
 		const groupButtons = document.querySelectorAll(`.${groupClass}`);
-
 		// Désactive tous les boutons
 		groupButtons.forEach(b => b.classList.remove('active'));
-
 		// Active le bouton cliqué
 		btn.classList.add('active');
-
 		// Exécute l'action associée
 		if (typeof actionFn === 'function') {
 			actionFn();
@@ -779,3 +774,4 @@ export function observeMarqueesOnPage(pageRoot) {
         subtree: true
     });
 }
+

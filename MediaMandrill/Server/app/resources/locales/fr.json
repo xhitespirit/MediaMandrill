@@ -30,6 +30,7 @@
 	"btn.back": "Retour",
 	"btn.up": "Remonter",
 	"btn.parent": "Parent",
+	"btn.fullscreen": "Plein écran",
 
 	"views.albumslatest.title": "Albums dernièrement ajoutés",
 	"views.albumsrandom.title": "Albums aléatoires",

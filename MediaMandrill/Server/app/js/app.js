@@ -15,7 +15,7 @@ import { initPlayerEvents, initPlayerControls } from './player.js';
 import { initViews } from './views.js'; 
 import { initSearch } from './search.js'; 
 import { initDynamicList } from './dynlist.js';
-import { initGlobalClicks } from './events.js';
+import { initEvents } from './events.js';
 import { initBrowsing } from './router.js';
 import { initImagesLazyLoader, log } from './utils.js';
 
@@ -31,7 +31,7 @@ initPlayerControls();
 // initialisation interface
 initMainMenu();
 initGlobalButtons();
-initGlobalClicks();
+initEvents();
 initBrowsing();
 
 // initialisation retardée vues (

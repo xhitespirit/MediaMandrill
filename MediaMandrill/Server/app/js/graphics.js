@@ -28,6 +28,9 @@ export function initGlobalButtons() {
 	if (dom.searchViewBtnClose)			{dom.searchViewBtnClose.appendChild(icon('close', 24, 24, [])); }
 	if (dom.npBtnClose)					{dom.npBtnClose.appendChild(icon('close', 24, 24, [])); }
 	
+	// boutons fullscreen
+	if (dom.npBtnFullscreen)			{dom.npBtnFullscreen.appendChild(icon('fullscreen', 24, 24, [])); }
+	
 	// boutons parent
 	if (dom.artistDetailsBtnParent)		{dom.artistDetailsBtnParent.appendChild(icon('arrowParent', 24, 24, [])); }
 	if (dom.albumDetailsBtnParent)		{dom.albumDetailsBtnParent.appendChild(icon('arrowParent', 24, 24, [])); }

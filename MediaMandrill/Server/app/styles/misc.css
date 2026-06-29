@@ -178,8 +178,8 @@
 {
 	display: inline-block;
 }
-
 @keyframes marquee-dup {
 	0% { transform: translateX(0); }
 	100% { transform: translateX(var(--marquee-distance)); }
 }
+

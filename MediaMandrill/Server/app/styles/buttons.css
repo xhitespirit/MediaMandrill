@@ -24,7 +24,7 @@ button.highlight {
     background-color: var(--btn-accent-color);
 }
 
-.button-back, .button-up, .button-close, .button-parent, .button-nav-burger, .button-nav-search {
+.button-back, .button-up, .button-close, .button-parent, .button-nav-burger, .button-nav-search, .button-fullscreen {
     align-self: flex-start;
     align-items: center;
     justify-content: center;
@@ -33,8 +33,9 @@ button.highlight {
     cursor: pointer;
 }
 
-.button-back, .button-up, .button-close, .button-parent {
-    background-color: var(--btn-accent-color);
+.button-back, .button-up, .button-close, .button-parent, .button-fullscreen  {
+    /* background-color: var(--btn-accent-color); */
+    background-color: transparent;
     width: 32px;
     height: 32px;
 }

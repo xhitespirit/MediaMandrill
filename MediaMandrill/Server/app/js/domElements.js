@@ -59,13 +59,12 @@ export const domElements = {
 	artistsContainer: () => document.getElementById('artistsContainer'),
 	artistsType: () => document.getElementById('artistsType'),
 	artistsView: () => document.getElementById('artistsView'),
-	authorsView: () => document.getElementById('authorsView'),
 	artistsViewContentAlphaBar: () => document.getElementById('artistsViewContentAlphaBar'),
-	authorsViewContentAlphaBar: () => document.getElementById('authorsViewContentAlphaBar'),
 	artistsViewBtnUp: () => document.getElementById('artistsViewBtnUp'),
 	
 	// vue compositeurs
 	authorsContainer: () => document.getElementById('authorsContainer'),
+	authorsType: () => document.getElementById('authorsType'),
 	authorsView: () => document.getElementById('authorsView'),
 	authViewContentAlphaBar: () => document.getElementById('authViewContentAlphaBar'),
 	authorsViewBtnUp: () => document.getElementById('authorsViewBtnUp'),
@@ -163,7 +162,8 @@ export const domElements = {
 	npCodecBps: () => document.getElementById('npCodecBps'),	
 	npPlaylistList: () => document.getElementById('npPlaylistList'),
 	npBtnClose: () => document.getElementById('npBtnClose'),
-
+	npBtnFullscreen: () => document.getElementById('npBtnFullscreen'),
+	npRightBar: () => document.getElementById('npRightBar'),
 };
 
 

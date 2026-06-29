@@ -16,8 +16,6 @@ export async function testFunction() {
 	// ===============================
 
 
-	console.log('[test.js][testFunction] playerState.track.songId', playerState.track.songId);
-
 	
 	// ===============================
 	console.groupEnd();
