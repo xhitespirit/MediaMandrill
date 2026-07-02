@@ -92,54 +92,68 @@ export function debounce(fn, wait = 200) {
 /**
  * Construction de l'alphabar
  */
-export function setupAlphaBar(targetId, cardSelector) {
+export function setupAlphaBar(targetId, cardSelector, normalizeArticle = false) {
+    const bar = getDom(targetId + 'AlphaBar');
+    if (!bar) return;
 
-	const bar = getDom(targetId + 'AlphaBar');
-	if (!bar) return;
+    const getComparableText = (value) => {
+        const text = (value ?? '').toString().trim();
+        return normalizeArticle ? normalizeArticleForSort(text) : text.toUpperCase();
+    };
 
-	function updateAlphaBarState() {
-		const cards = document.querySelectorAll(`#${targetId} ${cardSelector}`);
-		bar.querySelectorAll('li').forEach(li => {
-			const letter = li.textContent.trim().toUpperCase();
-			let hasMatch = false;
-			if (letter === '#') {
-				hasMatch = [...cards].some(card => {
-				const text = card.textContent.trim().toUpperCase();
-				return !text[0] || text[0] < 'A' || text[0] > 'Z';
-				});
-			} else {
-				hasMatch = [...cards].some(card => card.textContent.trim().toUpperCase().startsWith(letter));
-			}
+    function updateAlphaBarState() {
+        const cards = document.querySelectorAll(`#${targetId} ${cardSelector}`);
+        bar.querySelectorAll('li').forEach(li => {
+            const letter = li.textContent.trim().toUpperCase();
+            let hasMatch = false;
 
-			li.classList.toggle('disabled', !hasMatch);
-			li.style.pointerEvents = hasMatch ? '' : 'none';
-			li.style.opacity = hasMatch ? '' : '0.4';
-		});
-	}
+            if (letter === '#') {
+                hasMatch = [...cards].some(card => {
+                    const text = getComparableText(card.textContent);
+                    const firstChar = text[0] ?? '';
+                    return !/^[A-Z]$/.test(firstChar);
+                });
+            } else {
+                hasMatch = [...cards].some(card => {
+                    const text = getComparableText(card.textContent);
+                    return text.startsWith(letter);
+                });
+            }
 
-	updateAlphaBarState();
+            li.classList.toggle('disabled', !hasMatch);
+            li.style.pointerEvents = hasMatch ? '' : 'none';
+            li.style.opacity = hasMatch ? '' : '0.4';
+        });
+    }
 
-	bar.querySelectorAll('li').forEach(li => {
-		li.addEventListener('click', () => {
-			if (li.classList.contains('disabled')) return;
-			const letter = li.textContent.trim().toUpperCase();
-			const cards = document.querySelectorAll(`#${targetId} ${cardSelector}`);
-			let target = null;
+    updateAlphaBarState();
 
-			if (letter === '#') {
-				target = [...cards].find(card => {
-				const text = card.textContent.trim().toUpperCase();
-				return !text[0] || text[0] < 'A' || text[0] > 'Z';
-				});
-			} else {
-				target = [...cards].find(card => card.textContent.trim().toUpperCase().startsWith(letter));
-			}
+    bar.querySelectorAll('li').forEach(li => {
+        li.addEventListener('click', () => {
+            if (li.classList.contains('disabled')) return;
 
-			if (target) {
-				target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			}
-		});
-	});
+            const letter = li.textContent.trim().toUpperCase();
+            const cards = document.querySelectorAll(`#${targetId} ${cardSelector}`);
+            let target = null;
+
+            if (letter === '#') {
+                target = [...cards].find(card => {
+                    const text = getComparableText(card.textContent);
+                    const firstChar = text[0] ?? '';
+                    return !/^[A-Z]$/.test(firstChar);
+                });
+            } else {
+                target = [...cards].find(card => {
+                    const text = getComparableText(card.textContent);
+                    return text.startsWith(letter);
+                });
+            }
+
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
 }
 
 
@@ -257,6 +271,20 @@ export function cleanString(str) {
 		.normalize('NFD')                     // Décompose les lettres accentuées
 		.replace(/[\u0300-\u036f]/g, '')      // Supprime les diacritiques (accents)
 		.toLowerCase();                       // Rend la comparaison insensible à la casse
+}
+
+
+/**
+ * utilitaire pour normaliser les valeurs pour tri: omettre les articles the, le, la, les, l'
+ */
+export function normalizeArticleForSort(value) {
+    return (value ?? '')
+        .toString()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/^(the |le |la |les |l['’])/i, '')
+        .toUpperCase();
 }
 
 
@@ -774,4 +802,3 @@ export function observeMarqueesOnPage(pageRoot) {
         subtree: true
     });
 }
-

@@ -9,7 +9,7 @@
 }
 
 .album-link {
-    color: var(--text-dark);
+    color: var(--text-medium);
     /* font-style: italic; */
     text-decoration: none;
 }
@@ -18,7 +18,7 @@
 }
 
 .genre-link {
-    color: var(--text-dark);
+    color: var(--text-medium);
     text-decoration: none;
 }
 .genre-link:not(.nohover):hover {
@@ -126,6 +126,7 @@
     overflow-y: auto; /* scroll vertical si nécessaire */
     max-height: 100%; /* ne dépasse pas le parent */
     gap: 12px;
+    padding: 0 16px 0 16px;
 }
 @media (max-width: 960px) {
     .message-box-content {
@@ -163,14 +164,13 @@
     text-align: right;
 }
 
+
 .marquee .marquee-inner {
 	display: inline-block;
 	white-space: nowrap;
 	min-width: max-content;
 	will-change: transform;
 }
-
-
 /* animation de texte marquee */
 .marquee .marquee-item,
 .marquee .marquee-spacer,

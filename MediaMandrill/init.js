@@ -1,12 +1,17 @@
+/**
+ * init.js
+ * démarrage de MediaMandrill
+ */
+
+
 // console.log('[init.js][function] var', var);
+
 
 'use strict';
 
-// ─────────────────────────────────────────
-// init.js — Point d'entrée MMBridge
-// ─────────────────────────────────────────
 
-// Charger les modules locaux EN PREMIER (avant tout requirejs)
+// Charger les modules locaux
+localRequirejs('mmbridge_utils');
 localRequirejs('mmbridge_events');
 localRequirejs('mmbridge_ws');
 localRequirejs('mmbridge_player');
@@ -14,10 +19,11 @@ localRequirejs('mmbridge_library');
 
 
 
-init();
+window.whenReady(init);
 
 
-function init() {
+
+async function init() {
 	console.log('MediaMandrill add-on start');
 	
 	const MMFolder = app.filesystem.getScriptsPath() + 'MediaMandrill\\';
@@ -27,6 +33,6 @@ function init() {
 	app.utils.shellExecute(nodePath, '"' + MMFolder + 'Server\\server.js"');
 
 	connectWS();
-	handleMMEvents();	
+	handleMMEvents();
 }
 

@@ -9,7 +9,7 @@ import { domElements, getDom, getDomElements } from './domElements.js';
 const dom = new Proxy(domElements, { get(target, prop) {return target[prop]?.();} });
 
 import { fetchGenres, fetchTrack, fetchMoods } from './dataFetching.js'; 
-import { sortByMultipleFields, renderStars, cleanString, showMessageBox, setTrackTag, createForm, debounce, log, popDate } from './utils.js';
+import { sortByMultipleFields, renderStars, cleanString, showMessageBox, setTrackTag, createForm, debounce, log, popDate, setMarquee } from './utils.js';
 import { menuAddSectionForm, menuAddSectionList, menuBuildSectionList, menuFilterSectionList, menuController } from './menus.js';
 import { tLng } from './i18n.js';
 
@@ -37,11 +37,10 @@ export async function songProperties(songId) {
 	// codec
 	const audioCodec = song.fileType?.toLowerCase();
 	const dateAdded = popDate(song.dateAdded);
-	// const thumbnail = `/library/track/${songId}/thumbnail`;
 	
 	const boxContent = `
 		<div class="song-prop-header">
-			<div class="column">
+			<div class="column left">
 				<img
 					src="resources/images/fallback_artists.png"	
 					data-src="/library/track/${songId}/thumbnail"
@@ -52,13 +51,13 @@ export async function songProperties(songId) {
 				>
 			</div>
 		
-			<div class="column">
-				<span class="np-song-title">${song?.title}</span>
-				<div class="np-combine">
+			<div class="column right">
+				<span class="np-song-title marquee">${song?.title}</span>
+				<div class="np-combine marquee">
 					<span class="artist-link nohover">${song?.artist.join(', ')}</span>
 					<span class="album-link nohover">&nbsp;&nbsp;•&nbsp;&nbsp;${song?.album}</span>
 				</div>
-				<span class="np-moods">${tLng('songprop.author')}${song?.author.length > 0 ? song?.author.join(', ') : 'n/a'}</span>
+				<span class="np-moods marquee">${tLng('songprop.author')}${song?.author.length > 0 ? song?.author.join(', ') : 'n/a'}</span>
 				<span class="np-moods">${tLng('songprop.dateAdded')}${dateAdded}</span>
 				<span class="np-audiocodec np-icon-${audioCodec}"></span>
 			</div>
@@ -84,9 +83,12 @@ export async function songProperties(songId) {
 			<button class="button-OK hidden highlight" id="songPropSubmitBtn">${tLng('songprop.update')}</button>
 		</div>
 	`;
-	// messageBox = showMessageBox('songEdit', tLng('songprop.box.title'), boxContent);
 	messageBox = showMessageBox('songEdit', null, boxContent);
 	messageBox.mount();
+	
+	// initialise tous les marquees de la page
+	getDom('songEdit').querySelectorAll('.marquee').forEach(setMarquee);
+	
 
 	// genres
 	const genresAll = await fetchGenres();

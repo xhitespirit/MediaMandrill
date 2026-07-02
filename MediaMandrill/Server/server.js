@@ -130,7 +130,7 @@ function handleWebSocket () {
 					const elapsed = Date.now() - ts;
 					
 					if (elapsed < 1000)	{ console.log(`[Server] Response     <--- MM:`, `\x1b[32m${data.requestId}: ${data.event} \x1b[32m (${elapsed}ms)\x1b[0m`); }
-					else 				{ console.log(`[Server] Response     <--- MM:`, `\x1b[32m${data.requestId}: ${data.event} \x1b[35m (${elapsed}ms)\x1b[0m`); }
+					else 				{ console.log(`[Server] Response     <--- MM:`, `\x1b[32m${data.requestId}: ${data.event} \x1b[33m (${elapsed}ms)\x1b[0m`); }
 					
 					if (data.event !== event) return;
 					clearTimeout(timeout);
@@ -229,6 +229,7 @@ function handlePendingResponse(data, res) {
 	
 	// ── Réponses result (items & listes) ──
 	const listEvents = [
+		'mmInfo',
 		'libraryStats',
 		'libraryHash',
 		'libraryTracks',
@@ -330,7 +331,7 @@ function handlePendingResponse(data, res) {
 		return res.json(data.track);
 	}
 	
-	// ── Réponses playerTrack ──
+	// ── Réponses playerVolume ──
 	if (data.event === 'playerVolume') {
 		return res.json(data.volume);
 	}
@@ -350,7 +351,9 @@ function generateRequestId() {
 
 
 function sendWS(obj) {
-	console.log(`[Server] Request      ---> MM:`, `\x1b[32m${obj.requestId || 'fire'}: ${obj.action}\x1b[0m`);
+	obj.requestId
+		? console.log(`[Server] Request      ---> MM:`, `\x1b[32m${obj.requestId}: ${obj.action}\x1b[0m`)
+		: console.log(`[Server] Request      ---> MM:`, `\x1b[35mfire: ${obj.action}\x1b[0m`);
 	
     if (mmSocket && mmSocket.readyState === WebSocket.OPEN) {
         mmSocket.send(JSON.stringify(obj));
@@ -381,7 +384,7 @@ function pendingRequest(res, action, event, payload = {}, timeoutMs = 5000) {
     const timeout = setTimeout(() => {
         pending.delete(requestId);
 		res.status(504).json({ error: 'Timeout: no answer from MediaMonkey' });		
-		console.log(`[Server] Request      ---  MM:`, `\x1b[31m${requestId}: ${action} / Timeout: ${timeoutMs}ms\x1b[0m`);
+		console.log(`[Server] Request      ---- MM:`, `\x1b[31m${requestId}: ${action} / Timeout: ${timeoutMs}ms\x1b[0m`);
     }, timeoutMs);
 
 	pending.set(requestId, { res, timeout, event, ts: Date.now() });
@@ -861,7 +864,7 @@ function handleRoutesMisc() {
 		});
 	});
 	
-	// server info
+	// node.js server info
 	app.get('/server/info', (req, res) => {
 		res.json({
 			hostname: os.hostname(),
@@ -869,5 +872,11 @@ function handleRoutesMisc() {
 			version: os.version()
 		});
 	});
+	
+	// MediaMandrill infos
+	app.get('/info', (req, res) => {
+		if (!mmConnected(res)) return;
+		pendingRequest(res, 'mmInfo', 'mmInfo', {}, 1000);
+	});	
 }
 

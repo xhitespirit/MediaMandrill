@@ -56,7 +56,7 @@
     align-items: center;
     padding-top: 12px;
     padding-bottom: 12px;
-    gap: 12px;
+    gap: 24px;
 }
 @media (max-width: 960px) {
     .song-prop-header {
@@ -70,6 +70,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+}
+.song-prop-header .column.right{
+    min-width: 0;
+    max-width: 100%;
 }
 
 .song-prop-row {
@@ -88,7 +93,7 @@
 
 .song-prop-row-right {
     font-size: 1.1rem;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     overflow : hidden;
 	text-overflow: ellipsis;
 }

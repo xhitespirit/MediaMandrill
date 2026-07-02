@@ -1,9 +1,14 @@
+/**
+ * mmbridge_events.js
+ * gestion des évenements issus de MediaMonkey
+ */
+
 // console.log('[mmbridge_events.js][function] var', var);
 
 'use strict';
 
 
-// ── Dispatch des evenements reçus par depuis MM ──
+// ── Dispatch des evenements reçus par depuis MediaMonkey ──
 function handleMMEvents() {
 
     // listener playbackState
@@ -58,7 +63,13 @@ function handleWSCommands(cmd) {
 
     switch (cmd.action) {
 
-        // ── player ──
+        // ── general ──
+		case 'mmInfo':
+			mmInfo(cmd.requestId);
+			break;
+			
+		
+		// ── player ──
 		case 'playerPlay':     app.player.playAsync();      break;
 		case 'playerPause':    app.player.pauseAsync();     break;
 		case 'playerToggle':   app.player.playPauseAsync(); break;
@@ -121,7 +132,7 @@ function handleWSCommands(cmd) {
 			break;
 
 
-        // ── library — le requestId est transmis à data.js pour être renvoyé dans la réponse ──
+        // ── library ──
 		case 'libraryStats':
 			libraryStats(cmd.requestId);
 			break;

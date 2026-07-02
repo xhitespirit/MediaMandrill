@@ -1,10 +1,12 @@
+/**
+ * mmbridge_library.js
+ * opérations sur la library MediaMonkey
+ */
+
 // log('[mmbridge_library.js][function] var', var);
 
 'use strict';
 
-// ─────────────────────────────────────────
-// data.js — Requêtes DB et formatage
-// ─────────────────────────────────────────
 
 
 const REST_URL = 'http://127.0.0.1:4080';
@@ -54,17 +56,14 @@ async function libraryStats(requestId) {
 async function libraryHash(requestId) {
     try {
         const r = await app.db.getQueryResultAsync(
-            `SELECT
-				(SELECT SUM(FileModified) FROM Songs)  AS FileStamp,
-				(SELECT SUM(TrackModified) FROM Songs) AS TrackStamp;`
+            `SELECT SUM(FileModified) AS FileStamp FROM Songs`
         );
 
         const stamp = {
 			fileStamp:		r.fieldByName('FileStamp'),
-			trackStamp:		r.fieldByName('TrackStamp'),
 		};
-
-		const hash = `${stamp.fileStamp}-${stamp.trackStamp}`;
+		
+		const hash = `${stamp.fileStamp}`;
 		safeSend({ event: 'libraryHash', requestId, result: hash });
 		
     } catch (e) {
@@ -1534,10 +1533,6 @@ async function getArtistThumbnailPathFallback(artistId) {
 		const audioDB = await getInfoFromTheAudioDB( {searchType: 'artist', artistName: artistName} )
 		const thumbnailUrl = audioDB && audioDB.thumbnail;
 		
-		// fanart.tv
-		// const fanartTv = await getInfoFromFanartTv(artistName)
-		// const thumbnailUrl = fanartTv && fanartTv.thumbnails[0];
-
 		if (!thumbnailUrl) { return null; }
 
         const baseFolder = (typeof app.filesystem.getDataFolder === 'function') ? app.filesystem.getDataFolder() : null;

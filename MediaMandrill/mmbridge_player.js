@@ -1,6 +1,12 @@
+/**
+ * mmbridge_player.js
+ * opérations sur l=e player MediaMonkey
+ */
+
 // console.log('[mmbridge_player.js][function] var', var);
 
 'use strict';
+
 
 
 const splitSemicol = val => {

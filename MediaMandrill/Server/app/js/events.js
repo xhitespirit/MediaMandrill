@@ -12,7 +12,7 @@ import { fetchArtistTracks, fetchAlbumTracks, fetchGenre, fetchPlaylist } from '
 import { playSongs, insertSongs, playSongInCurrentPlaylist } from './playback.js';
 
 import { updateHash, showView, goBack, goParent } from './router.js';
-import { log, debounce } from './utils.js';
+import { log, debounce, normalizeArticleForSort } from './utils.js';
 import { songProperties } from './songProperties.js';
 
 import { activeContainer } from './router.js';
@@ -393,11 +393,7 @@ function keydownHandleKeys(event) {
 	if (event.ctrlKey || event.altKey || event.metaKey) return null;
 	if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return null;
 
-	const ignoredKeys = [
-		'Enter', 'Escape', 'ArrowUp', 'ArrowDown',
-		'ArrowLeft', 'ArrowRight', 'Backspace',
-		'Delete', 'Tab'
-	];
+	const ignoredKeys = ['Enter', 'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace', 'Delete', 'Tab'];
 	if (ignoredKeys.includes(event.key)) return null;
 	if (event.key.length !== 1) return null;
 
@@ -425,23 +421,14 @@ function keyscrollCardTitle(pattern) {
 	parentCard.classList.remove('keyscroll-highlight');
 	void parentCard.offsetWidth;
 	parentCard.classList.add('keyscroll-highlight');
-	setTimeout(() => { parentCard.classList.remove('keyscroll-highlight'); }, 2000);
+	setTimeout(() => { parentCard.classList.remove('keyscroll-highlight'); }, 4000);
 	
 	return true;
 
-	function normalizeTitle(text) {
-		return (text || '')
-			.trim()
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.replace(/^(the |le |la |les |l['’])/i, '')
-			.toUpperCase();
-	}
-
 	function titleMatches(text, pattern) {
 		const titleText = (text || '').trim();
-		const normalizedTitle = normalizeTitle(titleText);
-		const normalizedPattern = normalizeTitle(pattern);
+		const normalizedTitle = normalizeArticleForSort(titleText);
+		const normalizedPattern = normalizeArticleForSort(pattern);
 		const rawPattern = (pattern || '').trim().toUpperCase();
 
 		if (!rawPattern) return false;

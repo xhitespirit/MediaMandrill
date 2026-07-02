@@ -1,4 +1,4 @@
-# MediaMandrill offers a web interface that allows remote control of a MediaMonkey 2024 instance.
+# MediaMandrill is an add‑on module for MediaMonkey 2024. It provides a web interface that allows browsing the music library and remotely controlling the MediaMonkey player.
 
 ### It is built around two components:
 - The Bridge: essentially a MediaMonkey script that uses the MediaMonkey APIs and exposes WebSocket
@@ -12,7 +12,7 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 
 ## To use MediaMandrill :
 - Start MediaMonkey (obviously !)
-- The MediaMandrill server will start automatically in a separate node.js window
+- The MediaMandrill server will start automatically in a separate node.js window. Do not close this windows unless you want to stop the server.
 - Open your browser and navigate to: http://YourComputerNameOrIP:4080/
 
 

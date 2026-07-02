@@ -14,7 +14,7 @@ import { setLocale, tLng } from './i18n.js';
 import { menuController, menuBuildSectionList } from './menus.js';
 import { setPlayerOutput } from './player.js';
 import { initViews } from './views.js';
-import { updateCache, cacheStats, fetchLibraryStats, fetchLibraryHash } from './dataFetching.js';
+import { fetchMMInfo, updateCache, cacheStats, fetchLibraryStats, fetchLibraryHash } from './dataFetching.js';
 import { certCA } from './config.js';
 // import { testFunction } from './test.js';
 
@@ -37,7 +37,7 @@ export async function initMainMenu() {
 	}
 	
 	// met à jour les stats au clic
-	dom.navButtonBurger.addEventListener('click', async () => { await menuSectionStats(); });
+	dom.navButtonBurger.addEventListener('click', async () => { await menuSectionInfo(); });
 }
 
 
@@ -108,35 +108,44 @@ async function menuSectionMM() {
 }
 
 
-async function menuSectionStats() {
+async function menuSectionInfo() {
+	const mmInfo = await fetchMMInfo();
 	const mmStats = await fetchLibraryStats();
 	const mmHash = await fetchLibraryHash();
-	const cacheStatus = cacheStats.hash == mmHash ? tLng('burger.stats.cache.uptodate') : tLng('burger.stats.cache.expired');
+	const cacheStatus = cacheStats.hash == mmHash ? tLng('burger.info.cache.uptodate') : tLng('burger.info.cache.expired');
 	
-	dom.burgerMenuStats.innerHTML = `
+	dom.burgerMenuInfos.innerHTML = `
 		<table>
 			<tr>
-				<td class="cell">${tLng('burger.stats.tracks')}</td>
+				<td class="cell">${tLng('burger.info.version')}</td>
+				<td class="cell right">${mmInfo.version}</td>
+			</tr>
+			<tr>
+				<td class="cell"></td>
+				<td class="cell right"></td>
+			</tr>
+			<tr>
+				<td class="cell">${tLng('burger.info.tracks')}</td>
 				<td class="cell right">${mmStats.tracks}</td>
 			</tr>
 			<tr>
-				<td class="cell">${tLng('burger.stats.albums')}</td>
+				<td class="cell">${tLng('burger.info.albums')}</td>
 				<td class="cell right">${mmStats.albums}</td>
 			</tr>
 			<tr>
-				<td class="cell">${tLng('burger.stats.artists')}</td>
+				<td class="cell">${tLng('burger.info.artists')}</td>
 				<td class="cell right">${mmStats.artists}</td>
 			</tr>
 			<tr>
-				<td class="cell">${tLng('burger.stats.authors')}</td>
+				<td class="cell">${tLng('burger.info.authors')}</td>
 				<td class="cell right">${mmStats.authors}</td>
 			</tr>
 			<tr>
-				<td class="cell">${tLng('burger.stats.genres')}</td>
+				<td class="cell">${tLng('burger.info.genres')}</td>
 				<td class="cell right">${mmStats.genres}</td>
 			</tr>
 			<tr>
-				<td class="cell">${tLng('burger.stats.playlists')}</td>
+				<td class="cell">${tLng('burger.info.playlists')}</td>
 				<td class="cell right">${mmStats.playlists}</td>
 			</tr>
 			<tr>

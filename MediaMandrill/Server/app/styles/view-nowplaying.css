@@ -81,13 +81,18 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
+	min-width: 0;
+	max-width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .np-song-title, .np-artist, .np-album, .np-year, .np-rating, .np-audiocodec {
 	max-width: 100%;
     white-space: nowrap;
     overflow : hidden;
-	/* text-overflow: ellipsis; */
+	text-overflow: ellipsis;
 }
 
 .np-song-title {
@@ -97,16 +102,28 @@
 	cursor: pointer;
 }
 
+.np-container.fullscreen .np-song-title {
+	font-size: 1.8rem;
+}
+
 .np-artist, .np-album, .np-rating {
 	font-size: 1.1rem;
 }
 
+.np-container.fullscreen .np-artist {
+	font-size: 1.6rem;
+}
+
 .np-year, .np-genres, .np-moods {
 	font-size: 1rem;
+	max-width: 100%;
+    white-space: nowrap;
+    overflow : hidden;
+	text-overflow: ellipsis;
 }
 
 .np-year, .np-moods, .np-audiocodec {
-	color: var(--text-dark);
+	color: var(--text-medium);
 }
 
 .np-rating {

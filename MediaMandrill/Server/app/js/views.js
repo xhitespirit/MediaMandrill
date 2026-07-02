@@ -12,7 +12,7 @@ import { icon } from './graphics.js';
 import {
 	createToggle, replaceClassByPrefix, sortByMultipleFields, setupAlphaBar,
 	popDate, formatDuration, renderStars, updateFanart, shuffleArray, log, getInfoFromTheAudioDB,
-	debounce, cleanString
+	debounce, cleanString, normalizeArticleForSort
 } from './utils.js';
 import {
 	fetchArtists, fetchAuthors, fetchAlbums, fetchGenres, fetchPlaylists, fetchArtistIds,
@@ -268,7 +268,7 @@ export async function displaySection(params, music) {
 		const renderFunction = (params) => {
 			return () => {
 				renderSectionContent({
-					...{ contentDivId, showFields },
+					...{ contentDivId, showFields, contentType: sectionType },
 					...params
 				});
 			};
@@ -494,7 +494,7 @@ export async function createSectionContent(params) {
 	
 	// alphabar
 	if (showAlphaBar) {
-		setupAlphaBar(contentDivId, '.card-title');
+		setupAlphaBar( contentDivId, '.card-title', (contentType === 'artists') );
 	}
 }
 
@@ -670,12 +670,12 @@ export async function createTracks(contentDivId, tracks, showTrack = false, show
 * @param showFields: []
 */
 export function renderSectionContent(params) {
-
+	
 	const contentDivId = params.contentDivId;
 	const container = getDom(contentDivId);
+	const contentType = params.contentType;
 	const displayType = params.displayType;
 	const sort = params.sort;
-	const showFields = params.showFields;
 	
 	// gestion affichage: type
 	if (displayType === 'grid')			{ replaceClassByPrefix(container, 'view-', 'view-grid'); }
@@ -684,34 +684,69 @@ export function renderSectionContent(params) {
 	else if (displayType === 'line')	{ replaceClassByPrefix(container, 'view-', 'view-line'); }
 	
 	// gestion affichage: ordre
-	if (sort) {	sortByDataset(container, sort);	}
+	if (sort) {	sortByDataset(container, sort, (contentType === 'artists')); }
+
 	
-	function sortByDataset(container, sortConfig) {
+	function sortByDataset(container, sortConfig, normalizeArticle = false) {
 		const items = [...container.children];
+		const originalIndex = new Map(items.map((el, i) => [el, i]));
+
 		items.sort((a, b) => {
 			for (const [datasetName, direction] of Object.entries(sortConfig)) {
 				const va = a.dataset[datasetName];
 				const vb = b.dataset[datasetName];
-				
-				// Gestion des valeurs undefined/null
-				if (va == null && vb == null) continue; // Tous deux vides, passer au critère suivant
-				if (va == null) return direction === "asc" ? 1 : -1; // a vide, aller après
-				if (vb == null) return direction === "asc" ? -1 : 1; // b vide, aller après
-				
-				// Détection numérique
+
+				if (va == null && vb == null) continue;
+				if (va == null) return direction === 'asc' ? 1 : -1;
+				if (vb == null) return direction === 'asc' ? -1 : 1;
+
 				const na = Number(va);
 				const nb = Number(vb);
 
-				let diff;
-				if (!isNaN(na) && !isNaN(nb)) { diff = na - nb; }
-				else { diff = va.localeCompare(vb); }
+				if (!isNaN(na) && !isNaN(nb)) {
+					const diff = na - nb;
+					if (diff !== 0) return direction === 'asc' ? diff : -diff;
+					continue;
+				}
 
-				if (diff !== 0) { return direction === "asc" ? diff : -diff; }
+				const left = (normalizeArticle ? normalizeArticleForSort(va) : String(va ?? '')).trim();
+				const right = (normalizeArticle ? normalizeArticleForSort(vb) : String(vb ?? '')).trim();
+
+				// 1) comparaison "base" (insensible casse/accents), mais conserve la ponctuation
+				let cmp = left.localeCompare(right, undefined, { sensitivity: 'base', numeric: true });
+				if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
+
+				// 2) comparaison plus précise pour distinguer ponctuation / casse si nécessaires
+				cmp = left.localeCompare(right, undefined, { sensitivity: 'variant', numeric: true });
+				if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
+
+				// 3) tie-breaker: utiliser un champ id si présent (dataset.labelid / dataset.id)
+				const aid = a.dataset[`${datasetName}id`] ?? a.dataset.id ?? null;
+				const bid = b.dataset[`${datasetName}id`] ?? b.dataset.id ?? null;
+				if (aid != null && bid != null && aid !== bid) {
+					const ai = Number(aid), bi = Number(bid);
+					if (!isNaN(ai) && !isNaN(bi)) {
+						const idDiff = ai - bi;
+						if (idDiff !== 0) return direction === 'asc' ? idDiff : -idDiff;
+					} else {
+						const idCmp = String(aid).localeCompare(String(bid), undefined, { numeric: true });
+						if (idCmp !== 0) return direction === 'asc' ? idCmp : -idCmp;
+					}
+				}
+
+				// 4) dernier recours: préserver l'ordre stable d'origine
+				return originalIndex.get(a) - originalIndex.get(b);
 			}
-			return 0; // tous les critères égaux
+			return 0;
 		});
+
 		items.forEach(el => container.appendChild(el));
-	}
+	}	
+	
+	
+	
+	
+	
 }
 
 
@@ -808,7 +843,7 @@ export async function displayArtistDetails(artistId) {
 					>
 				</div>
 				<div class="music-detail">
-					<span class="music-detail-label">${artistDetails.artist}</span>
+					<span class="music-detail-label marquee">${artistDetails.artist}</span>
 					<span class="music-detail-info text-medium"">${artistGenres?.genre.split(';').join('&nbsp;&nbsp;&bull;&nbsp;&nbsp;') || ''}</span>
 					<span class="music-detail-info">${infoParts.join('&nbsp;&nbsp;&bull;&nbsp;&nbsp;')}</span>
 					${renderPlayButtons(paramsPlayButtons).outerHTML}
@@ -899,7 +934,7 @@ export async function displayAlbumDetails(albumId) {
 					>
 				</div>
 				<div class="music-detail">
-					<span class="music-detail-label">${albumDetails.label}</span>
+					<span class="music-detail-label marquee">${albumDetails.label}</span>
 					<span class="music-detail-info text-medium">${infoParts.join('&nbsp;&nbsp;&bull;&nbsp;&nbsp;')}</span>
 					<div class="music-detail-wrapper">
 						<span class="music-detail-info text-medium">${albumGenres?.genre.split(';').join('&nbsp;&nbsp;&bull;&nbsp;&nbsp;') || ''}</span>

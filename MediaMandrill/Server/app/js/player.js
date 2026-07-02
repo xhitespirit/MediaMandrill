@@ -13,6 +13,7 @@ import { formatDuration, renderStars, updateFanart, setTrackTag, getDisplaySize,
 import { icon } from './graphics.js';
 import { renderArtistLinks, renderAlbumLink, renderGenreLinks } from './views.js';
 import { fetchArtistIds, fetchGenreIds } from './dataFetching.js';
+import { playerSeekStep } from './config.js';
 
 
 
@@ -122,6 +123,9 @@ export async function initPlayerControls() {
 		if (playerState.isPlaying && playerState.songDuration > 0) {
 			const percentage = Number(dom.playerProgressBar.value);
 			const positionMs = Math.round((percentage / 100) * playerState.songDuration);
+			
+			log('[player.js][initPlayerControls] change positionMs', positionMs);
+			
 			await fetch('/player/seek', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -132,6 +136,45 @@ export async function initPlayerControls() {
 			updateProgressBar(playerState.lastTimePosition);
 		}
 		playerState.isSeekingProgressBar = false;
+	});
+	
+	// playerCurrentTime: seek -playerSeekStep
+	dom.playerCurrentTime.addEventListener('click', async () => {
+		if (playerState.isPlaying && playerState.songDuration > 0) {
+			const positionMs = await fetch('/player/position').then(r => r.json());
+			let newPositionMS = Number(0);
+			if (positionMs > playerSeekStep) {
+				newPositionMS = Number(positionMs - playerSeekStep);
+			}
+			await fetch('/player/seek', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ positionMs: newPositionMS })
+			});		
+
+			// ajuste la progressbar
+			updatePlayerStatePosition();
+			updateProgressBar(playerState.lastTimePosition);
+		}
+	});
+	
+	// playerTotalTime: seek +playerSeekStep
+	dom.playerTotalTime.addEventListener('click', async () => {
+		if (playerState.isPlaying && playerState.songDuration > 0) {
+			const positionMs = await fetch('/player/position').then(r => r.json());
+			if (positionMs + playerSeekStep + 5000 < playerState.songDuration) {
+				const newPositionMS = Number(positionMs + playerSeekStep);
+				await fetch('/player/seek', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ positionMs: newPositionMS })
+				});
+				
+				// ajuste la progressbar
+				updatePlayerStatePosition();
+				updateProgressBar(playerState.lastTimePosition);
+			}
+		}
 	});
 	
 	
@@ -273,11 +316,9 @@ async function updatePlayerBar() {
 
 		dom.playerAlbumArt.src = albumArt;
 		dom.playerAlbumArt.alt = currentSong.title || tLng('player.title.unknown');
-		dom.playerSongTitle.textContent = currentSong.title || tLng('player.title.unknown');
-		
-		setMarquee(dom.playerSongTitle);
 		dom.playerSongTitle.dataset.songid = currentSong.id || '';
-		
+		dom.playerSongTitle.textContent = currentSong.title || tLng('player.title.unknown');
+		setMarquee(dom.playerSongTitle);
 		dom.playerArtistAlbum.textContent = `${artistText} - ${albumText}`;
 		setMarquee(dom.playerArtistAlbum);
 		
@@ -415,12 +456,12 @@ async function updateNowPlayingView() {
 
 			// samplerate
 			dom.npCodecKHz.innerHTML = samplerate ?
-				`<span style="color: var(--text-medium);">${samplerate}</span>kHz`
+				`${samplerate}<span style="color: var(--text-darker);">kHz</span>`
 				: ''
 
 			// bitrate
 			dom.npCodecBps.innerHTML = bitrate ?
-				`<span style="color: var(--text-medium);">${bitrate}</span>kbps`
+				`${bitrate}<span style="color: var(--text-darker);">kbps</span>`
 				: ''
 		});
 		
@@ -542,8 +583,8 @@ export function updateNowPlayingList() {
 				</button>
 			</div>
 			<div class="info" data-songid=${item.songId}>
-				<div id="np-playlist-item-${item.songId}" class="title click-song-title marquee">${item.title}</div>
-				<div class="meta marquee">${item.artist?.join(', ') || tLng('player.artist.unknown')} &bull; ${item.album || tLng('player.album.unknown')}</div>
+				<div id="np-playlist-item-${item.songId}" class="title click-song-title">${item.title}</div>
+				<div class="meta">${item.artist?.join(', ') || tLng('player.artist.unknown')} &bull; ${item.album || tLng('player.album.unknown')}</div>
 			</div>
 		`;
 		playlistContainer.appendChild(entry);
@@ -576,7 +617,7 @@ async function updatePlayingIndicator(index) {
 		indicator.innerHTML = icon('nowPlayingSpeaker', 30, 30).outerHTML;
 
 		currentItem.querySelector('.np-playlist-thumb-wrapper')?.appendChild(indicator);
-
+		
 		// scroll à la piste en cours si pas en mode affichage mobile
 		if (getDisplaySize() != 'm') {
 			if (currentItem && currentItem.previousElementSibling) {

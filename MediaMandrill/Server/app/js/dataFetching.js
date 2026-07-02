@@ -8,6 +8,7 @@
 
 import { log, sortByMultipleFields, loadIndicator } from './utils.js';
 import { initViews } from './views.js';
+import { cacheUpdateDelay } from './config.js';
 
 
 
@@ -25,7 +26,7 @@ export const cacheStats = {
 
 
 // mise à jour des caches
-setTimeout(() => { updateCache() }, 90000);
+setTimeout(() => { updateCache() }, cacheUpdateDelay);
 
 
 
@@ -222,6 +223,23 @@ async function updateCachePlaylists() {
     }
 	catch (e) {
         console.error('[dataFetching][updateCachePlaylists] failed:', e);
+    }
+}
+
+
+/**
+ * récupère les infos de MediaMandrill
+ */
+export async function fetchMMInfo() {
+    try {
+        const response = await fetch('/info');
+        if (!response.ok) { throw new Error(`HTTP ${response.status}: ${response.statusText}`); }
+        
+        const stats = await response.json();
+        return stats;
+    }
+	catch (e) {
+        console.error('[dataFetching][fetchLibraryStats] failed:', e);
     }
 }
 

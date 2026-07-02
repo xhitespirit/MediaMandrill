@@ -133,6 +133,7 @@
     font-size: 0.9rem;
     color: var(--text-light);
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .player-progress-bar {
