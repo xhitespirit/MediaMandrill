@@ -319,7 +319,7 @@ async function clickButtonPlaySongNp(event) {
 
 // boutons edition titres
 async function clickSongTitle(event) {
-	const target = event.target.closest('.song-title, .np-song-title, .click-song-title');
+	const target = event.target.closest('.song-title, .np-song-title, .np-playlist-item .np-info .title');
 	if (!target) return false;
 	
 	event.stopPropagation();

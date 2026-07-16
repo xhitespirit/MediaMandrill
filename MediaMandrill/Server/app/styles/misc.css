@@ -81,7 +81,8 @@
 .message-box {
     position: fixed;
     width: 50%;
-    min-height: calc(100dvh - 140px);
+    min-height: calc(100dvh - 200px);
+    max-height: calc(100vh - 100px);
     top: calc(var(--nav-main-height) + 20px);
     background-color: var(--bg-dark);
     display: flex;
@@ -90,11 +91,9 @@
     box-shadow: 0 0 32px var(--shadow-dark);
     border-radius: 8px;
     z-index: 100;
-    max-height: calc(100vh - 280px);
 }
 @media (max-width: 960px) {
     .message-box {
-        min-width: auto;
         width: calc(100dvw - 50px);
     }
 }
@@ -121,10 +120,11 @@
 .message-box-content {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     padding-top: 24px;
     flex: 1;
     overflow-y: auto; /* scroll vertical si nécessaire */
-    max-height: 100%; /* ne dépasse pas le parent */
+    /* max-height: 100%; ne dépasse pas le parent */
     gap: 12px;
     padding: 0 16px 0 16px;
 }

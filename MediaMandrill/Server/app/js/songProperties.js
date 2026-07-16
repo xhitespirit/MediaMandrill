@@ -39,47 +39,52 @@ export async function songProperties(songId) {
 	const dateAdded = popDate(song.dateAdded);
 	
 	const boxContent = `
-		<div class="song-prop-header">
-			<div class="column left">
-				<img
-					src="resources/images/fallback_artists.png"	
-					data-src="/library/track/${songId}/thumbnail"
-					alt="${song?.title}"
-					class="song-prop-album-art"
-					loading="lazy"
-					onerror="this.onerror=null;this.src='resources/images/fallback_album.png';"
-				>
-			</div>
-		
-			<div class="column right">
-				<span class="np-song-title marquee">${song?.title}</span>
-				<div class="np-combine marquee">
-					<span class="artist-link nohover">${song?.artist.join(', ')}</span>
-					<span class="album-link nohover">&nbsp;&nbsp;•&nbsp;&nbsp;${song?.album}</span>
+		<div class="song-prop-content">
+	
+			<div class="song-prop-info">
+				<div class="column left">
+					<img
+						src="resources/images/fallback_artists.png"	
+						data-src="/library/track/${songId}/thumbnail"
+						alt="${song?.title}"
+						class="song-prop-album-art"
+						loading="lazy"
+						onerror="this.onerror=null;this.src='resources/images/fallback_album.png';"
+					>
 				</div>
-				<span class="np-moods marquee">${tLng('songprop.author')}${song?.author.length > 0 ? song?.author.join(', ') : 'n/a'}</span>
-				<span class="np-moods">${tLng('songprop.dateAdded')}${dateAdded}</span>
-				<span class="np-audiocodec np-icon-${audioCodec}"></span>
+			
+				<div class="column right">
+					<span class="np-song-title marquee">${song?.title}</span>
+					<div class="np-combine marquee">
+						<span class="artist-link nohover">${song?.artist.join(', ')}</span>
+						<span class="album-link nohover">&nbsp;&nbsp;•&nbsp;&nbsp;${song?.album}</span>
+					</div>
+					<span class="np-moods marquee">${tLng('songprop.author')}${song?.author.length > 0 ? song?.author.join(', ') : 'n/a'}</span>
+					<span class="np-moods">${tLng('songprop.dateAdded')}${dateAdded}</span>
+					<span class="np-audiocodec np-icon-${audioCodec}"></span>
+				</div>
 			</div>
+			
+			<div class="song-prop-row">
+				<div id="songPropGenre" class="song-prop-row-left"></div>
+				<div id="songPropGenreResult" class="song-prop-row-right"></div>
+			</div>
+			<div class="song-prop-row">
+				<div id="songPropMood" class="song-prop-row-left"></div>
+				<div id="songPropMoodResult" class="song-prop-row-right"></div>
+			</div>
+			<div class="song-prop-row">
+				<div id="songPropDate" class="song-prop-row-left"></div>
+				<div id="songPropDateResult" class="song-prop-row-right">${tLng('songprop.year')}</div>
+			</div>
+			<div class="song-prop-row">
+				<div id="songPropRating" class="song-prop-row-left"></div>
+				<div id="songPropRatingResult" class="song-prop-row-right"></div>
+			</div>
+		
 		</div>
 		
-		<div class="song-prop-row">
-			<div id="songPropGenre" class="song-prop-row-left"></div>
-			<div id="songPropGenreResult" class="song-prop-row-right"></div>
-		</div>
-		<div class="song-prop-row">
-			<div id="songPropMood" class="song-prop-row-left"></div>
-			<div id="songPropMoodResult" class="song-prop-row-right"></div>
-		</div>
-		<div class="song-prop-row">
-			<div id="songPropDate" class="song-prop-row-left"></div>
-			<div id="songPropDateResult" class="song-prop-row-right">${tLng('songprop.year')}</div>
-		</div>
-		<div class="song-prop-row">
-			<div id="songPropRating" class="song-prop-row-left"></div>
-			<div id="songPropRatingResult" class="song-prop-row-right"></div>
-		</div>
-		<div id="songPropFooter" class="song-prop-footer">
+		<div class="song-prop-footer" id="songPropFooter">
 			<button class="button-OK hidden highlight" id="songPropSubmitBtn">${tLng('songprop.update')}</button>
 		</div>
 	`;
@@ -92,7 +97,7 @@ export async function songProperties(songId) {
 
 	// genres
 	const genresAll = await fetchGenres();
-	const menuDefinitionGenre = { name: 'editGenre', title: tLng('songprop.genres'), datatype: 'genre' }
+	const menuDefinitionGenre = { name: 'editGenre', title: tLng('songprop.genres'), datatype: 'genre', stayInDomId: 'songEdit' }
 	const genresAllSorted = sortByMultipleFields(
 		genresAll.map(item => ({ id: item.genreId, label: item.label })),
 		['label'],
@@ -106,7 +111,7 @@ export async function songProperties(songId) {
 	
 	// moods
 	const moods = await fetchMoods();
-	const menuDefinitionMood = { name: 'editMood', title: tLng('songprop.moods'), datatype: 'mood' }
+	const menuDefinitionMood = { name: 'editMood', title: tLng('songprop.moods'), datatype: 'mood', stayInDomId: 'songEdit' }
 	const moodsSorted = sortByMultipleFields(
 		moods.map(mood => ({ id: mood.replace(/\s+/g, ''), label: mood })),
 		['label'],
@@ -174,10 +179,14 @@ async function buildMenu(containerId, menuDefinition, menuContent) {
 	container.appendChild(menuDivId);
 	
 	// définition de la hauteur maximale du menu
-	const parentRect = getDom('songEdit').getBoundingClientRect();
+	const stayIn = getDom(menuDefinition.stayInDomId);
+
+	
+	// const parentRect = getDom('songEdit').getBoundingClientRect();
+	const parentRect = stayIn.getBoundingClientRect();
 	const rect = menuDropdown.getBoundingClientRect();
-	const height = parentRect.bottom - rect.top - 40;
-	const maxHeight = `${height}px`
+	const height = parentRect.bottom - rect.top - 40;	
+	const maxHeight = `${height}px`;
 
 	// construction du menu
 	switch (menuDefinition.datatype) {

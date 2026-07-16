@@ -175,7 +175,9 @@
 
 .np-playlist-item {
     display: flex;
-    padding: 0.5rem;
+    /* padding: 0.5rem; */
+	padding-top: 5px;
+	padding-bottom: 5px;
     border-radius: 8px;
     transition: background 0.2s ease;
 }
@@ -189,20 +191,20 @@
 	color: var(--accent-color);
 }
 
-.np-playlist-item .info {
+.np-playlist-item .np-info {
     display: flex;
     flex-direction: column;
     min-width: 0;
 }
 
-.np-playlist-item .info .title {
+.np-playlist-item .np-info .title {
     white-space: nowrap;
     overflow: hidden;
 	text-overflow: ellipsis;
 	cursor: pointer;
 }
 
-.np-playlist-item .info .meta {
+.np-playlist-item .np-info .meta {
     color: var(--text-medium);
     font-size: 0.85rem;
     white-space: nowrap;
@@ -215,7 +217,7 @@
     margin-right: 1rem;
 }
 
-.np-playlist-thumb-wrapper, .np-playlist-thumb {
+.np-playlist-thumb-wrapper, .np-playlist-thumb, .np-playlist-indicators {
 	width: 48px;
 	height: 48px;
 }

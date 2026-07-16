@@ -71,11 +71,10 @@ body {
 }
 @media (max-width: 960px) {
     .container {
-        padding-left: 40px;
-        padding-right: 40px;
+        padding-left: 32px;
+        padding-right: 32px;
     }
 }
-
 
 .container.player-bar-on {
     height: calc(100dvh - var(--nav-main-height) - var(--player-bar-height));

@@ -211,7 +211,7 @@
 }
 @media (max-width: 960px) {
     .bar-vertical.left {
-    	left: 5px;
+    	left: 0;
     }
 }
 
@@ -220,7 +220,7 @@
 }
 @media (max-width: 960px) {
     .bar-vertical.right {
-		right: 5px;
+		right: 0;
     }
 }
 

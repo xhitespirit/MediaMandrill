@@ -119,13 +119,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 0;
     padding: 6px 10px;
     min-height: 35px;
 }
 .song-row:hover {
     background-color: var(--bg-medium-transparent);
     border-radius: 8px;
+}
+@media (max-width: 960px) {
+    .song-row {
+        padding: 4px 2px;
+    }
 }
 
 .song-list li:last-child {

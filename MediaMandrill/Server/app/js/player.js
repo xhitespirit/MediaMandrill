@@ -582,8 +582,8 @@ export function updateNowPlayingList() {
 					${icon('play',24, 24).outerHTML}
 				</button>
 			</div>
-			<div class="info" data-songid=${item.songId}>
-				<div id="np-playlist-item-${item.songId}" class="title click-song-title">${item.title}</div>
+			<div class="np-info" data-songid=${item.songId}>
+				<div id="np-playlist-item-${item.songId}" class="title">${item.title}</div>
 				<div class="meta">${item.artist?.join(', ') || tLng('player.artist.unknown')} &bull; ${item.album || tLng('player.album.unknown')}</div>
 			</div>
 		`;
@@ -615,7 +615,6 @@ async function updatePlayingIndicator(index) {
 		const indicator = document.createElement('div');
 		indicator.className = 'np-playlist-playing-indicator';
 		indicator.innerHTML = icon('nowPlayingSpeaker', 30, 30).outerHTML;
-
 		currentItem.querySelector('.np-playlist-thumb-wrapper')?.appendChild(indicator);
 		
 		// scroll à la piste en cours si pas en mode affichage mobile
