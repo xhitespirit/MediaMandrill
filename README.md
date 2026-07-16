@@ -6,6 +6,10 @@
 Both bridge and server components are embedded in the MediaMandrill add-on package
 
 
+## MediaMandrill forum thread
+- https://www.mediamonkey.com/forum/viewtopic.php?t=109500
+
+
 ## Installation:
 - Install the MediaMandrill for MediaMonkey 2024 add-on as usual from the installer package MediaMandrill.mmip
 
@@ -52,4 +56,3 @@ Both bridge and server components are embedded in the MediaMandrill add-on packa
 	- export const portHttps = '4443';
 	- export const portWs = '4081';
 	- export const portWss = '4444';	
-	
