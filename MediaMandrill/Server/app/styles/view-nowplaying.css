@@ -15,13 +15,14 @@
 .np-left {
 	display: flex;
 	flex-direction: column;
-	justify-content: flex-start;
+	/* justify-content: flex-start; */
+	justify-content: center; 
 	width: 50%;
 	align-items: center;
     gap: 1px;
 	box-sizing: border-box;
 	overflow: hidden; /* Pas de scroll ici */
-    padding-top: 10px;
+    /* padding-top: 10px; */
     z-index: 1;
 }
 .np-container.fullscreen .np-left {
@@ -33,7 +34,7 @@
 .np-right {
 	display: flex;
 	flex-direction: column;
-	width: 35%;
+	width: 40%;
 	height: 100%;
 	box-sizing: border-box;
 	overflow-y: auto; /* scroll ici */
@@ -176,6 +177,7 @@
 .np-playlist-item {
     display: flex;
     /* padding: 0.5rem; */
+	justify-content: space-between;
 	padding-top: 5px;
 	padding-bottom: 5px;
     border-radius: 8px;
@@ -186,25 +188,30 @@
 	background-color: var(--bg-medium-transparent);
 }
 
+.np-playlist-item:hover .np-playlist-remove-button{
+	background-color: var(--bg-medium-transparent);
+}
+
 .np-playlist-item.playing {
     font-weight: bold;
 	color: var(--accent-color);
 }
 
-.np-playlist-item .np-info {
+.np-playlist-item .np-playlist-info {
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    flex: 1;
+	min-width: 0;
 }
 
-.np-playlist-item .np-info .title {
+.np-playlist-item .np-playlist-info .title {
     white-space: nowrap;
     overflow: hidden;
 	text-overflow: ellipsis;
 	cursor: pointer;
 }
 
-.np-playlist-item .np-info .meta {
+.np-playlist-item .np-playlist-info .meta {
     color: var(--text-medium);
     font-size: 0.85rem;
     white-space: nowrap;
@@ -258,6 +265,18 @@
 	opacity: 0;
 	transition: opacity 0.2s ease;
 	z-index: 2;
+}
+
+.np-playlist-remove-button {
+	display: none;
+}
+
+.np-playlist-item:hover .np-playlist-remove-button {
+	/* opacity: 1; */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: transparent;
 }
 
 .np-playlist-thumb-wrapper:hover .np-playlist-thumb-play-button {

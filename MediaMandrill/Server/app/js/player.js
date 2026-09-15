@@ -18,7 +18,7 @@ import { playerSeekStep } from './config.js';
 
 
 // État centralisé du player
-const playerState = {
+const player = {
     isPlaying: false,
 	isPaused: false,
     songDuration: 0,
@@ -52,17 +52,17 @@ export function initPlayerEvents() {
     evtSource.onerror = () => {	log('[player.js][SSE] disconnected'); };
 
 	const sseHandlers = {
-		playerState:			({ data }) => { updatePlayerState( { trigger: 'state', data: data.state } ) },
-		playerTrack:			({ data }) => { updatePlayerState( { trigger: 'track', data: data } ) },
-		playerShuffleChange:	({ data }) => { updatePlayerState( { trigger: 'shuffle', data: data.state } ) },
-		playerShuffleState:		({ data }) => { updatePlayerState( { trigger: 'shuffle', data: data.state } ) },
-		playerSeekChange:		({ data }) => { updatePlayerState( { trigger: 'position', data: data.positionMs } ) },
-		playerPosition:			({ data }) => { updatePlayerState( { trigger: 'position', data: data.positionMs } ) },
+		playerState:			({ data }) => { updatePlayer( { trigger: 'state', data: data.state } ) },
+		playerTrack:			({ data }) => { updatePlayer( { trigger: 'track', data: data } ) },
+		playerShuffleChange:	({ data }) => { updatePlayer( { trigger: 'shuffle', data: data.state } ) },
+		playerShuffleState:		({ data }) => { updatePlayer( { trigger: 'shuffle', data: data.state } ) },
+		playerSeekChange:		({ data }) => { updatePlayer( { trigger: 'position', data: data.positionMs } ) },
+		playerPosition:			({ data }) => { updatePlayer( { trigger: 'position', data: data.positionMs } ) },
 		playerPlaylist:			({ data }) => { 
 									updatePlayerPlaylist(data.playlist);
 									updateNowPlayingList();
 								},
-		playerVolume:			({ data }) => { updatePlayerState( { trigger: 'volume', data: data.volume } ) },
+		playerVolume:			({ data }) => { updatePlayer( { trigger: 'volume', data: data.volume } ) },
 	};
 
 	Object.entries(sseHandlers).forEach(([event, handler]) => {
@@ -82,9 +82,9 @@ export function initPlayerEvents() {
 export async function initPlayerControls() {
 
 	function playerControl(action) {
-		if (playerState.isPlaying) {
+		if (player.isPlaying) {
 			if (action === 'PlayPause') 	{ fetch('/player/toggle', { method: 'POST' }); }
-			else if (action === 'Stop') 	{ fetch('/player/stop', { method: 'POST' }); }
+			else if (action === 'Stop') 	{ fetch('/player/stop', { method: 'POST' }); fetch('player/clearplaylist', { method: 'POST' }); }
 			else if (action === 'Previous')	{ fetch('/player/previous', { method: 'POST' });; }
 			else if (action === 'Next') 	{ fetch('/player/next', { method: 'POST' }); }
 			else if (action === 'Shuffle') 	{ fetch('/player/shuffle/toggle', { method: 'POST' }); }
@@ -113,19 +113,16 @@ export async function initPlayerControls() {
 	
 	// curseur progression: pendant le déplacement (blocage de la progression automatique avec isSeeking)
 	dom.playerProgressBar.addEventListener('input', () => {
-		const newTime = Math.floor((dom.playerProgressBar.value / 100) * playerState.songDuration);
+		const newTime = Math.floor((dom.playerProgressBar.value / 100) * player.songDuration);
 		dom.playerCurrentTime.textContent = formatDuration(newTime);
-		playerState.isSeekingProgressBar = true;
+		player.isSeekingProgressBar = true;
 	});
 
 	// curseur progression: après le déplacement
 	dom.playerProgressBar.addEventListener('change', async () => {
-		if (playerState.isPlaying && playerState.songDuration > 0) {
+		if (player.isPlaying && player.songDuration > 0) {
 			const percentage = Number(dom.playerProgressBar.value);
-			const positionMs = Math.round((percentage / 100) * playerState.songDuration);
-			
-			log('[player.js][initPlayerControls] change positionMs', positionMs);
-			
+			const positionMs = Math.round((percentage / 100) * player.songDuration);
 			await fetch('/player/seek', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -133,14 +130,14 @@ export async function initPlayerControls() {
 			});			
 			// ajuste la progressbar
 			updatePlayerStatePosition();
-			updateProgressBar(playerState.lastTimePosition);
+			updateProgressBar(player.lastTimePosition);
 		}
-		playerState.isSeekingProgressBar = false;
+		player.isSeekingProgressBar = false;
 	});
 	
 	// playerCurrentTime: seek -playerSeekStep
 	dom.playerCurrentTime.addEventListener('click', async () => {
-		if (playerState.isPlaying && playerState.songDuration > 0) {
+		if (player.isPlaying && player.songDuration > 0) {
 			const positionMs = await fetch('/player/position').then(r => r.json());
 			let newPositionMS = Number(0);
 			if (positionMs > playerSeekStep) {
@@ -154,15 +151,15 @@ export async function initPlayerControls() {
 
 			// ajuste la progressbar
 			updatePlayerStatePosition();
-			updateProgressBar(playerState.lastTimePosition);
+			updateProgressBar(player.lastTimePosition);
 		}
 	});
 	
 	// playerTotalTime: seek +playerSeekStep
 	dom.playerTotalTime.addEventListener('click', async () => {
-		if (playerState.isPlaying && playerState.songDuration > 0) {
+		if (player.isPlaying && player.songDuration > 0) {
 			const positionMs = await fetch('/player/position').then(r => r.json());
-			if (positionMs + playerSeekStep + 5000 < playerState.songDuration) {
+			if (positionMs + playerSeekStep + 5000 < player.songDuration) {
 				const newPositionMS = Number(positionMs + playerSeekStep);
 				await fetch('/player/seek', {
 					method: 'POST',
@@ -172,7 +169,7 @@ export async function initPlayerControls() {
 				
 				// ajuste la progressbar
 				updatePlayerStatePosition();
-				updateProgressBar(playerState.lastTimePosition);
+				updateProgressBar(player.lastTimePosition);
 			}
 		}
 	});
@@ -181,7 +178,7 @@ export async function initPlayerControls() {
 	// curseur volume: pendant le déplacement 
 	let volumeDebounce;
 	dom.playerVolumeBar.addEventListener('input', () => {
-		playerState.isSeekingVolume = true;
+		player.isSeekingVolume = true;
 		clearTimeout(volumeDebounce);
 		volumeDebounce = setTimeout(async () => {
 			const volume = Number(dom.playerVolumeBar.value);
@@ -193,7 +190,7 @@ export async function initPlayerControls() {
 	dom.playerVolumeBar.addEventListener('change', async () => {
 		const volume = Number(dom.playerVolumeBar.value);
 		setPlayerVolume(volume);
-		playerState.isSeekingVolume = false;
+		player.isSeekingVolume = false;
 	});
 }
 
@@ -201,50 +198,51 @@ export async function initPlayerControls() {
 /**
  * obtient l'état du lecteur actif
  */
-export function updatePlayerState(params) {
+export function updatePlayer(params) {
 	
 	const trigger = params.trigger;
 	const data = params.data;
-
+	
 	switch (trigger) {
 		
 		case 'state':
+		
 			switch (data.evt) {
 				
 				case 'play':
-					playerState.isPlaying = true;
-					playerState.isPaused = false;
+					player.isPlaying = true;
+					player.isPaused = false;
 					updatePlayerBar();
 					updateNowPlayingView();
 					// updateNowPlayingFanart();
-					updateFanart('npContainer', playerState.track.artist[0]);
-					updatePlayingIndicator(playerState.track.positionInPlaylist);
+					updateFanart('npContainer', player.track.artist[0]);
+					updatePlayingIndicator(player.track.positionInPlaylist);
 					break;
 
 				case 'pause':
-					playerState.isPlaying = true;
-					playerState.isPaused = true;
-					if (playerState.firstStateEvent) {	// artefact pour gérer l'initialisation lorsque MM est en pause
+					player.isPlaying = true;
+					player.isPaused = true;
+					if (player.firstStateEvent) {	// artefact pour gérer l'initialisation lorsque MM est en pause
 						updateNowPlayingView();
 						// updateNowPlayingFanart();
-						updateFanart('npContainer', playerState.track.artist[0]);
+						updateFanart('npContainer', player.track.artist[0]);
 					}
 					updatePlayerBar();
 					stopPlayerTimer();
 					break;
 					
 				case 'unpause':
-					playerState.isPlaying = true;
-					playerState.isPaused = false;
+					player.isPlaying = true;
+					player.isPaused = false;
 					updatePlayerBar();
 					// updateNowPlayingFanart();
-					updateFanart('npContainer', playerState.track.artist[0]);
+					updateFanart('npContainer', player.track.artist[0]);
 					break;
 					
 				case 'stop':
-					playerState.isPlaying = data.isPlaying;
-					playerState.isPaused = data.isPaused;
-					if (!playerState.isPlaying || playerState.isPaused) { // artefact pour éviter l'évènement stop lors du changement de piste
+					player.isPlaying = data.isPlaying;
+					player.isPaused = data.isPaused;
+					if (!player.isPlaying || player.isPaused) { // artefact pour éviter l'évènement stop lors du changement de piste en mode streaming
 						updatePlayerBar();
 						updateNowPlayingView();
 						updatePlayingIndicator(-1);
@@ -252,50 +250,49 @@ export function updatePlayerState(params) {
 					break;
 					
 				case 'completeEnd':
-					playerState.isPlaying = false;
-					playerState.isPaused = false;
+					player.isPlaying = false;
+					player.isPaused = false;
 					updatePlayerBar();
 					updateNowPlayingView();
 					updatePlayingIndicator(-1);
 					// fetch('player/clearplaylist', { method: 'POST' });
 					break;
 			}
-			if (playerState.firstStateEvent) {playerState.firstStateEvent = false;}
-			
+			if (player.firstStateEvent) {player.firstStateEvent = false;}
 			break;
 		
 		case 'track':
-			playerState.track = data;
-			playerState.songDuration = data.songLength;
-			updatePlayingIndicator(playerState.track.positionInPlaylist);
+			player.track = data;
+			player.songDuration = data.songLength;
+			updatePlayingIndicator(player.track.positionInPlaylist);
 			break;
 			
 		case 'shuffle':
-			if (playerState?.isPlaying) {
-				playerState.shuffled = data;
-				updatePlayingIndicator(playerState.track.positionInPlaylist);
+			if (player?.isPlaying) {
+				player.shuffled = data;
+				updatePlayingIndicator(player.track.positionInPlaylist);
 				updatePlayerBar();
 			}
 			break;
 			
 		case 'position':
-			playerState.lastTimePosition = data;
+			player.lastTimePosition = data;
 			updateProgressBar(data);
 			break;
 			
 		case 'volume':
-			playerState.volume = data;
+			player.volume = data;
 			updateVolumeBar(data);
 			break;
 			
 	}
-
-	// console.group ('[player.js][updatePlayerState]');
-	// log('[player.js][updatePlayerState] trigger:', trigger,' / evt:', data.evt);
-	// log('[player.js][updatePlayerState] isPlaying:', playerState.isPlaying, ' / isPaused:', playerState.isPaused);
-	// log('[player.js][updatePlayerState] player position:', playerState?.track?.positionInPlaylist || null);
-	// log('[player.js][updatePlayerState] playlist position:', playerPlaylist.position);
-	// log('[player.js][updatePlayerState] playerState:', playerState);
+	
+	// console.group ('[player.js][updatePlayer]');
+	// log('[player.js][updatePlayer] trigger:', trigger,' / evt:', data.evt);
+	// log('[player.js][updatePlayer] isPlaying:', player.isPlaying, ' / isPaused:', player.isPaused);
+	// log('[player.js][updatePlayer] player position:', player?.track?.positionInPlaylist || null);
+	// log('[player.js][updatePlayer] playlist position:', playerPlaylist.position);
+	// log('[player.js][updatePlayer] player:', player);
 	// console.groupEnd();
 }
 
@@ -305,12 +302,12 @@ export function updatePlayerState(params) {
  */
 async function updatePlayerBar() {
 	
-	if (playerState.isPlaying || playerState.isPaused) {
+	if (player.isPlaying || player.isPaused) {
 		dom.playerBar.classList.remove('hidden');
 		adaptDisplayToPlayerVisibility();
 
-		const currentSong = playerState.track;
-		const albumArt = `/library/track/${playerState.track.songId}/thumbnail`;
+		const currentSong = player.track;
+		const albumArt = `/library/track/${player.track.songId}/thumbnail`;
 		const artistText = currentSong.artist ? currentSong.artist.join(', ') : tLng('player.artist.unknown');
 		const albumText = currentSong.album || tLng('player.album.unknown');
 
@@ -323,16 +320,16 @@ async function updatePlayerBar() {
 		setMarquee(dom.playerArtistAlbum);
 		
 		dom.playerPlayPauseButton.innerHTML = '';
-		playerState.isPaused ? dom.playerPlayPauseButton.appendChild(icon('play', 32, 32, [])) : dom.playerPlayPauseButton.appendChild(icon('pause', 32, 32, []));
-		dom.playerTotalTime.textContent = formatDuration(Math.round(playerState.songDuration));
+		player.isPaused ? dom.playerPlayPauseButton.appendChild(icon('play', 32, 32, [])) : dom.playerPlayPauseButton.appendChild(icon('pause', 32, 32, []));
+		dom.playerTotalTime.textContent = formatDuration(Math.round(player.songDuration));
 
-		if (playerState.shuffled)	{ dom.playerShuffleButton.classList.add('active'); }
+		if (player.shuffled)	{ dom.playerShuffleButton.classList.add('active'); }
 		else 						{ dom.playerShuffleButton.classList.remove('active'); }
 
-		if (playerState.isPlaying && !playerState.isPaused)	{ startPlayerTimer(); }
+		if (player.isPlaying && !player.isPaused)	{ startPlayerTimer(); }
 
 		const positionMs = await fetch('/player/position').then(r => r.json());
-		if (!playerState.isSeekingProgressBar) { updateProgressBar(positionMs); }
+		if (!player.isSeekingProgressBar) { updateProgressBar(positionMs); }
 		
     } else {
         dom.playerBar.classList.add('hidden');
@@ -372,8 +369,8 @@ async function updatePlayerBar() {
  */
 async function updateNowPlayingView() {
 	
-	if (playerState.isPlaying || playerState.isPaused) {
-		const currentSong = playerState.track;
+	if (player.isPlaying || player.isPaused) {
+		const currentSong = player.track;
 
         // Paralléliser les fetch de artistIds et genreIds
         const [artistIds, genreIds] = await Promise.all([
@@ -390,7 +387,7 @@ async function updateNowPlayingView() {
 				dom.npAlbumArt.classList.add('art-loaded'); // fade-in
 			}, 300); // attente durée du fade-out en ms (identique à la transition dans CSS)
 		};
-		albumArt.src = `/library/track/${playerState.track.songId}/thumbnail`;		
+		albumArt.src = `/library/track/${player.track.songId}/thumbnail`;		
 		// ajoute un clic sur pochette pour scroller à l'élément en cours dans la playlist
 		dom.npAlbumArt.addEventListener('click', async () => {
 			const currentItem = document.querySelector('.np-playlist-item.playing');
@@ -488,7 +485,7 @@ async function updateNowPlayingView() {
  */
 async function updatePlayerStatePosition() {	
 	const positionMs = await fetch('/player/position').then(r => r.json());
-	playerState.lastTimePosition = positionMs;
+	player.lastTimePosition = positionMs;
 }
 
 
@@ -501,33 +498,33 @@ function startPlayerTimer() {
 	
 	// position initiale
 	updatePlayerStatePosition();
-	updateProgressBar(playerState.lastTimePosition);
+	updateProgressBar(player.lastTimePosition);
 
 	// avancement autonome toutes les 1s
-    playerState.timerId = setInterval(() => {
-        if (!playerState.isSeekingProgressBar && playerState.isPlaying && !playerState.isPaused) {
-			// playerState.lastTimePosition++;
-			playerState.lastTimePosition = playerState.lastTimePosition + 1000;
-			updateProgressBar(playerState.lastTimePosition);
+    player.timerId = setInterval(() => {
+        if (!player.isSeekingProgressBar && player.isPlaying && !player.isPaused) {
+			// player.lastTimePosition++;
+			player.lastTimePosition = player.lastTimePosition + 1000;
+			updateProgressBar(player.lastTimePosition);
         }
 	}, 1000);
 	
 	// Resynchronisation périodique avec MM toutes les 10s
-    playerState.timerResyncId = setInterval(() => {
+    player.timerResyncId = setInterval(() => {
 		updatePlayerStatePosition();
-		updateProgressBar(playerState.lastTimePosition);
+		updateProgressBar(player.lastTimePosition);
 	}, 10000);
 }
 
 
 function stopPlayerTimer() {
-	clearInterval(playerState.timerId);
-	playerState.timerId = null;
+	clearInterval(player.timerId);
+	player.timerId = null;
 
-	clearInterval(playerState.timerResyncId);
-	playerState.timerResyncId = null;
+	clearInterval(player.timerResyncId);
+	player.timerResyncId = null;
 	
-	playerState.lastTimePosition = 0;
+	player.lastTimePosition = 0;
 }
 
 
@@ -535,8 +532,8 @@ function stopPlayerTimer() {
  * met à jour la barre de progression
  */
 function updateProgressBar(currentMs) {
-	if (playerState.songDuration > 0) {
-		const percentage = (currentMs / Math.round(playerState.songDuration)) * 100;
+	if (player.songDuration > 0) {
+		const percentage = (currentMs / Math.round(player.songDuration)) * 100;
 		dom.playerProgressBar.value = percentage;
 		dom.playerCurrentTime.textContent = formatDuration(Math.min(Math.floor(currentMs)));
 	} else {
@@ -582,10 +579,13 @@ export function updateNowPlayingList() {
 					${icon('play',24, 24).outerHTML}
 				</button>
 			</div>
-			<div class="np-info" data-songid=${item.songId}>
+			<div class="np-playlist-info" data-songid=${item.songId}>
 				<div id="np-playlist-item-${item.songId}" class="title">${item.title}</div>
 				<div class="meta">${item.artist?.join(', ') || tLng('player.artist.unknown')} &bull; ${item.album || tLng('player.album.unknown')}</div>
 			</div>
+			<button class="np-playlist-remove-button no-default-hover" data-songid=${item.songId}>
+				${icon('remove',24, 24).outerHTML}
+			</button>
 		`;
 		playlistContainer.appendChild(entry);
 	});
@@ -640,7 +640,7 @@ async function updatePlayingIndicator(index) {
  * met à jour la barre de volume
  */
 function updateVolumeBar(volume) {
-	if (!playerState.isSeekingVolume) {
+	if (!player.isSeekingVolume) {
 		dom.playerVolumeBar.value = volume;
 		dom.playerVolumeBar.title = `${tLng('player.volume')}: ${Math.round(volume * 100)}`;
 	}
@@ -675,7 +675,7 @@ function setPlayerVolume(volume) {
  * définit le volume sonore (entre 0 et 1)
  */
 function setVolumeDiff(volumeDiff) {
-	let volume = playerState.volume + volumeDiff;
+	let volume = player.volume + volumeDiff;
 	if (volume < 0) { volume = 0; }
 	else if (volume > 1) { volume = 1; }
 	setPlayerVolume(volume);

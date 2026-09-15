@@ -67,7 +67,6 @@ function handleWSCommands(cmd) {
 		case 'mmInfo':
 			mmInfo(cmd.requestId);
 			break;
-			
 		
 		// ── player ──
 		case 'playerPlay':     app.player.playAsync();      break;
@@ -79,6 +78,7 @@ function handleWSCommands(cmd) {
 		case 'playerGoTo':
 			if (typeof cmd.position === 'number') {	app.player.setPlaylistPosAsync(cmd.position); }
 			break;
+			
 		case 'playerSeek':
 			if (typeof cmd.positionMs === 'number') { app.player.seekMSAsync(cmd.positionMs); }
 			break;
@@ -112,7 +112,11 @@ function handleWSCommands(cmd) {
 			break;
 
 		case 'playerAddTracks':
-			playerAddTracks(cmd.songIds, cmd.params, cmd.requestId);
+			playerAddTracks(cmd.songIds, cmd.params);
+			break;
+			
+		case 'playerRemoveTracks':
+			playerRemoveTracks(cmd.songIds);
 			break;
 			
 		case 'playerClearPlaylist':

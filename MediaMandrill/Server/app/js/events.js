@@ -9,7 +9,7 @@ import { domElements } from './domElements.js';
 const dom = new Proxy(domElements, { get(target, prop) {return target[prop]?.();} });
 
 import { fetchArtistTracks, fetchAlbumTracks, fetchGenre, fetchPlaylist } from './dataFetching.js'; 
-import { playSongs, insertSongs, playSongInCurrentPlaylist } from './playback.js';
+import { playSongs, insertSongs, playSongInCurrentPlaylist, removeSongsFromCurrentPlaylist } from './playback.js';
 
 import { updateHash, showView, goBack, goParent } from './router.js';
 import { log, debounce, normalizeArticleForSort } from './utils.js';
@@ -58,7 +58,8 @@ async function initGlobalClicks() {
 		if (await clickSongTitle(event)) return;
 		
 		// now playing		
-		if (await clickButtonPlaySongNp(event)) return;
+		if (await clickButtonNpPlaySong(event)) return;
+		if (await clickButtonNpRemoveSong(event)) return;
 		
 		// player
 		if (await clickPlayerAlbumArt(event)) return;
@@ -304,8 +305,8 @@ async function clickButtonPlaySong(event) {
 }
 
 
-// now playing
-async function clickButtonPlaySongNp(event) {
+// boutons now playing play song
+async function clickButtonNpPlaySong(event) {
 	const target = event.target.closest('.np-playlist-thumb-play-button');
 	if (!target) return false;
 	
@@ -317,9 +318,22 @@ async function clickButtonPlaySongNp(event) {
 }
 
 
-// boutons edition titres
+// boutons now playing remove song
+async function clickButtonNpRemoveSong(event) {
+	const target = event.target.closest('.np-playlist-remove-button');
+	if (!target) return false;
+	
+	event.preventDefault();
+	const songId = parseInt(target.dataset.songid, 10);
+	await removeSongsFromCurrentPlaylist([songId]);
+	
+	return true;
+}
+
+
+// edition titres
 async function clickSongTitle(event) {
-	const target = event.target.closest('.song-title, .np-song-title, .np-playlist-item .np-info .title');
+	const target = event.target.closest('.song-title, .np-song-title, .np-playlist-item .np-playlist-info .title');
 	if (!target) return false;
 	
 	event.stopPropagation();

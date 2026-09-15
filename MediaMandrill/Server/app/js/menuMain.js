@@ -61,11 +61,11 @@ async function menuSectionCast() {
 	});
 
 	// Selectionne le lecteur en cours
-	await getDom(`burgerMenuPlayersItem${activeUuid}`).click();
+	getDom(`burgerMenuPlayersItem${activeUuid}`).click();
 	
 	// gestion de la selection
 	function selOp(id) {
-		if (castFirstRun)	{ castFirstRun = false;	} // pour éviter de selectionner le lecteur actuf au démarrage, qui provoque une coupure de son
+		if (castFirstRun)	{ castFirstRun = false;	} // pour éviter de selectionner le lecteur actif au démarrage, qui provoque une coupure de son
 		else 				{ setPlayerOutput(id); }
 	}	
 }

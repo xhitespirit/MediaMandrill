@@ -45,6 +45,22 @@ export async function insertSongs(songIds = [], position = 'after') {
 }
 
 
+// Supprime plusieurs pistes de la playlist en cours
+export async function removeSongsFromCurrentPlaylist(songIds = []) {
+	
+	
+		log('[playback.js][removeSongsFromCurrentPlaylist] songIds', songIds);
+	
+	if (songIds?.length > 0) {
+		await fetch('/player/removetracks', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( { songIds: songIds } )
+		});
+	}
+}
+
+
 /**
  * change le titre en lecture dans la liste de lecture en cours
  * @param index: index dans la liste de lecture en cours

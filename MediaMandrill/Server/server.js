@@ -321,11 +321,6 @@ function handlePendingResponse(data, res) {
 		return res.json(data.outputs);
 	}
 
-	// ── Réponses addtrack ──
-	if (data.event === 'playerAddTracks') {
-		return res.json({ ok: data.ok, error: data.error ?? null });
-	}
-	
 	// ── Réponses playerTrack ──
 	if (data.event === 'playerTrack') {
 		return res.json(data.track);
@@ -530,7 +525,19 @@ function handleRoutesPlayer() {
 		if (!Array.isArray(songIds) || songIds.length === 0) {
 			return res.status(400).json({ error: 'songIds needed (array)' });
 		}
-		pendingRequest(res, 'playerAddTracks', 'playerAddTracks', { songIds, params });
+		sendWS({ action: 'playerAddTracks', songIds: songIds, params: params });
+		res.json({ ok: true });
+	});
+
+	app.post('/player/removetracks', (req, res) => {
+		if (!mmConnected(res)) return;
+		const { songIds } = req.body;
+		if (!Array.isArray(songIds) || songIds.length === 0) {
+			return res.status(400).json({ error: 'songIds needed (array)' });
+		}
+		sendWS({ action: 'playerRemoveTracks', songIds: songIds});
+		res.json({ ok: true });
+		
 	});
 
 	app.post('/player/clearplaylist', (req, res) => {

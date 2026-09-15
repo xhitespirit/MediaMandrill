@@ -151,7 +151,7 @@ async function playerCurrentPlaylist(requestId) {
 }
 
 
-async function playerAddTracks(songIds, params, requestId) {
+async function playerAddTracks(songIds, params) {
     try {
         const ids = Array.isArray(songIds) ? songIds : [songIds];
 
@@ -168,11 +168,30 @@ async function playerAddTracks(songIds, params, requestId) {
             startPlayback: params?.startPlayback ?? false,
             withClear:     params?.withClear     ?? false,
         });
-        safeSend({ event: 'playerAddTracks', requestId, ok: true });
 
     } catch (e) {
         console.error('[playerAddTracks] failed:', e);
-        safeSend({ event: 'playerAddTracks', requestId, ok: false, error: e.message });
+    }
+}
+
+
+async function playerRemoveTracks(songIds) {
+    try {
+        const ids = new Set(songIds);
+        const list = app.player.getTracklist();
+        await list.whenLoaded();
+		
+        const tracksToRemove = app.utils.createTracklist();
+        list.locked(() => {
+            for (let i = 0; i < list.count; i++) {
+                const track = list.getValue(i);
+                if (ids.has(track.id)) { tracksToRemove.add(track); }
+            }
+        });
+
+        if (tracksToRemove.count > 0) { await app.player.removeSelectedTracksAsync(tracksToRemove); }
+    } catch (e) {
+        console.error('[playerRemoveTracks] failed:', e);
     }
 }
 
