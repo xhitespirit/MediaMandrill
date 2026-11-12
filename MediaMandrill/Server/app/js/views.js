@@ -822,8 +822,6 @@ export async function displayArtistDetails(artistId) {
 	
 	// Affichage
 	if (artistDetails) {
-		const audioDb = await getInfoFromTheAudioDB({ searchType: 'artist', artistName: artistDetails.artist });
-		const description = audioDb?.biography ? audioDb.biography : null;
 		const paramsPlayButtons = {	name: 'Artist', type: 'artist', marginTop: '32px', data: {artistid: artistDetails.artistId}, };
 		
 		const infoParts = [];
@@ -849,16 +847,13 @@ export async function displayArtistDetails(artistId) {
 					${renderPlayButtons(paramsPlayButtons).outerHTML}
 				</div>
 			</div>
-			${description ? `
-				<section class="music-detail-description section-block">
-					${description}
-				</section>
-			` : ''}
-			<div id="artistDetailsAlbums" class="section-block">
-			</div>
-			<div id="artistDetailsSongs" class="section-block">
-			</div>
+			<section id="artistDetailsDescription" class="music-detail-description section-block hidden"></section>
+			<div id="artistDetailsAlbums" class="section-block"></div>
+			<div id="artistDetailsSongs" class="section-block"></div>
 		`;
+		
+		// description
+		displayArtistDescription(artistDetails);
 
 		let params, buttons;
 		// liste des albums
@@ -890,6 +885,23 @@ export async function displayArtistDetails(artistId) {
 	} else {
 		dom.artistDetailsContent.innerHTML = `<p>${tLng('views.nodetails')}</p>`;
 	}
+	
+	async function displayArtistDescription(artistDetails) {
+		try {
+			const audioDb = await getInfoFromTheAudioDB({ searchType: 'artist', artistName: artistDetails.artist});
+			const description = audioDb?.biography;
+			if (!description) return;
+
+			const section = getDom('artistDetailsDescription');
+			if (!section) return; // la vue a été remplacée entre-temps
+			
+			section.textContent = description;
+			section.classList.remove('hidden')
+			
+		} catch (e) {
+			console.warn('[displayArtistDescription] failed:', e);
+		}
+	}
 }
 
 
@@ -906,8 +918,6 @@ export async function displayAlbumDetails(albumId) {
 	
 	// Affichage
 	if (albumDetails) {
-		const audioDb = await getInfoFromTheAudioDB({ searchType: 'album', artistName: albumDetails.albumArtist, albumName: albumDetails.album });
-		const description = audioDb?.description ? audioDb.description : null;
 		const albumArtistId = albumDetails.albumArtistId;
 		const albumArtistlink = renderArtistLinks( [albumDetails.albumArtist], [albumArtistId] );
 		const year = (albumDetails.year && albumDetails.year.length >= 4) ? albumDetails.year.slice(0, 4) : '';
@@ -944,14 +954,12 @@ export async function displayAlbumDetails(albumId) {
 					${renderPlayButtons(paramsPlayButtons).outerHTML}
 				</div>
 			</div>
-			${description ? `
-				<section class="music-detail-description section-block">
-					${description}
-				</section>
-			` : ''}
-			<div id="albumDetailsSongs" class="section-block">
-			</div>
+			<section id="albumDetailsDescription" class="music-detail-description section-block hidden"></section>
+			<div id="albumDetailsSongs" class="section-block"></div>
 		`;
+		
+		// description
+		displayAlbumDescription(albumDetails);
 		
 		let params, buttons;
 		// liste des titres
@@ -971,6 +979,23 @@ export async function displayAlbumDetails(albumId) {
 	} else {
 		dom.albumDetailsContent.innerHTML = `<p>${tLng('views.nodetails')}</p>`;
 	}
+	
+	async function displayAlbumDescription(albumDetails) {
+		try {
+			const audioDb = await getInfoFromTheAudioDB({ searchType: 'album', artistName: albumDetails.albumArtist, albumName: albumDetails.album });
+			const description = audioDb?.description;
+			if (!description) return;
+
+			const section = getDom('albumDetailsDescription');
+			if (!section) return; // la vue a été remplacée entre-temps
+			
+			section.textContent = description;
+			section.classList.remove('hidden')
+			
+		} catch (e) {
+			console.warn('[displayAlbumDescription] failed:', e);
+		}
+	}	
 }
 
 

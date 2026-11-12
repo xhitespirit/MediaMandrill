@@ -570,72 +570,75 @@ export async function getInfoFromTheAudioDB(params) {
 		// albumName: 'album_name'
 	// }
 	
-	const searchType = params.searchType;
-	const artistName = encodeURIComponent(params.artistName);
-	const albumName = encodeURIComponent(params.albumName);
 	
-	let url = null;
-	
-	if (searchType === 'artist')		{ url = `https://www.theaudiodb.com/api/v1/json/123/search.php?s=${artistName}`; }
-	else if (searchType === 'album')	{ url = `https://www.theaudiodb.com/api/v1/json/123/searchalbum.php?s=${artistName}&a=${albumName}` }
-
-    const res = await fetch(url);
-    if (!res.ok) {
-        throw new Error("TheAudioDB API error: " + res.status);
-    }
-
-    const json = await res.json();
-	
-	// artist
-	if (searchType === 'artist') {
+    try {
+		const searchType = params.searchType;
+		const artistName = encodeURIComponent(params.artistName);
+		const albumName = encodeURIComponent(params.albumName);
 		
-		if (!json.artists ) { return null; }
-		const artist = json.artists[0];
+		let url = null;
+		
+		if (searchType === 'artist')		{ url = `https://www.theaudiodb.com/api/v1/json/123/search.php?s=${artistName}`; }
+		else if (searchType === 'album')	{ url = `https://www.theaudiodb.com/api/v1/json/123/searchalbum.php?s=${artistName}&a=${albumName}` }
 
-		// Récupération dynamique des fanarts disponibles
-		const fanarts = [];
-		for (let i = 1; i <= 4; i++) {
-			const key = i === 1 ? "strArtistFanart" : `strArtistFanart${i}`;
-			if (artist[key]) {
-				fanarts.push(artist[key]);
+		const res = await fetch(url);
+		const json = await res.json();
+		
+		// artist
+		if (searchType === 'artist') {
+			
+			if (!json.artists ) { return null; }
+			const artist = json.artists[0];
+
+			// Récupération dynamique des fanarts disponibles
+			const fanarts = [];
+			for (let i = 1; i <= 4; i++) {
+				const key = i === 1 ? "strArtistFanart" : `strArtistFanart${i}`;
+				if (artist[key]) {
+					fanarts.push(artist[key]);
+				}
 			}
+			
+			const result = {
+				name: artist.strArtist,
+				biography: artist[`strBiography${currentLocale.toUpperCase()}`] || artist.strBiographyEN || artist.strBiography || null,
+				genre: artist.strGenre,
+				style: artist.strStyle,
+				country: artist.strCountry,
+				formedYear: artist.intFormedYear,
+				thumbnail: artist.strArtistThumb,
+				logo: artist.strArtistLogo,
+				banner: artist.strArtistBanner,
+				fanarts: fanarts, // tableau contenant 1 à 4 fanarts
+				facebook: artist.strFacebook,
+				website: artist.strWebsite
+			};
+			return result;
 		}
 		
-		const result = {
-			name: artist.strArtist,
-			biography: artist[`strBiography${currentLocale.toUpperCase()}`] || artist.strBiographyEN || artist.strBiography || null,
-			genre: artist.strGenre,
-			style: artist.strStyle,
-			country: artist.strCountry,
-			formedYear: artist.intFormedYear,
-			thumbnail: artist.strArtistThumb,
-			logo: artist.strArtistLogo,
-			banner: artist.strArtistBanner,
-			fanarts: fanarts, // tableau contenant 1 à 4 fanarts
-			facebook: artist.strFacebook,
-			website: artist.strWebsite
-		};
-		return result;
+		// album
+		else if (searchType === 'album') {
+
+			if (!json.album ) { return null; }
+			const album = json.album[0];
+			const result = {
+				name: album.strAlbum,
+				artist: album.strArtist,
+				cdArt: album.strAlbumCDart,
+				coverArt: album.strAlbumThumb,
+				coverArtHQ: album.strAlbumThumbHQ,
+				description: album[`strDescription${currentLocale.toUpperCase()}`] || album.strDescriptionEN || album.strDescription || null,
+				genre: album.strGenre,
+				mood: album.strMood,
+				style: album.strStyle,
+				year: album.intYearReleased,
+			};
+			return result;
+		}
 	}
 	
-	// album
-	else if (searchType === 'album') {
-
-		if (!json.album ) { return null; }
-		const album = json.album[0];
-		const result = {
-			name: album.strAlbum,
-			artist: album.strArtist,
-			cdArt: album.strAlbumCDart,
-			coverArt: album.strAlbumThumb,
-			coverArtHQ: album.strAlbumThumbHQ,
-			description: album[`strDescription${currentLocale.toUpperCase()}`] || album.strDescriptionEN || album.strDescription || null,
-			genre: album.strGenre,
-			mood: album.strMood,
-			style: album.strStyle,
-			year: album.intYearReleased,
-		};
-		return result;
+	catch (e) {
+        console.error('[utils][getInfoFromTheAudioDB] failed:', e);
 	}
 }
 
